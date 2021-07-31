@@ -1,0 +1,1 @@
+export { WindowCaption } from './WindowCaption';

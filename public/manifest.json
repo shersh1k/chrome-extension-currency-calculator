@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+
+  "name": "Currency Calculator",
+  "description": "Currency Calculator",
+  "version": "0.0.1",
+
+  "options_ui": {
+    "page": "options.html"
+  },
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/vendor.js", "js/content_script.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["js/vendor.js", "js/background.js"]
+  },
+
+  "permissions": ["storage", "<all_urls>"],
+  
+  "web_accessible_resources": ["options.html"]
+}
