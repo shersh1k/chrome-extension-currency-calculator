@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 
+import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { changeReactContainerPosition } from 'reactContainer';
 import { CloseButton, OptionsButton, PinnedButton } from 'atoms';
+import { appActions, appSelectors } from 'contentScriptCore';
 
-export const WindowCaption: React.FC = () => {
+import { changeReactContainerPosition } from '../../reactContainer';
+
+interface IWindowProps {
+  content?: React.ReactNode;
+}
+
+export const Window: React.FC<IWindowProps> = ({ content, children }) => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const isPinned = useSelector(appSelectors.getIsPinned);
 
   const [isMoving, setIsMoving] = useState(false);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -21,14 +31,16 @@ export const WindowCaption: React.FC = () => {
   };
 
   const handleEndMove = () => setIsMoving(false);
+  const handleClose = () => dispatch(appActions.close());
+  const handlePinned = () => dispatch(appActions.setIsPinned({ isPinned: !isPinned }));
 
   useEffect(() => {
     const handleEndMoveOnDocument = () => setIsMoving(false);
 
     const handleMoveOnDocument = (event: MouseEvent) => {
       if (!isMoving) return;
-      const x = event.pageX - cursorPosition.x;
-      const y = event.pageY - cursorPosition.y;
+      const x = event.clientX - cursorPosition.x;
+      const y = event.clientY - cursorPosition.y;
       changeReactContainerPosition({ x, y });
     };
 
@@ -41,16 +53,24 @@ export const WindowCaption: React.FC = () => {
   }, [isMoving, cursorPosition]);
 
   return (
-    <div className={classes.caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
-      <OptionsButton />
-      <PinnedButton />
-      <CloseButton />
+    <div className={classes.window}>
+      <div className={classes.caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
+        <OptionsButton />
+        <PinnedButton isPinned={isPinned} handlePinned={handlePinned} />
+        <CloseButton handleClose={handleClose} />
+      </div>
+      <div className={classes.content}>{content ?? children}</div>
     </div>
   );
 };
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    window: {
+      border: '1px solid grey',
+      background: 'white',
+      borderRadius: 10,
+    },
     caption: {
       display: 'flex',
       borderTopLeftRadius: 10,
@@ -61,6 +81,9 @@ const useStyles = makeStyles((theme: Theme) =>
       overflow: 'hidden',
       cursor: 'move',
       backgroundColor: 'lightgray',
+    },
+    content: {
+      padding: 10,
     },
   }),
 );

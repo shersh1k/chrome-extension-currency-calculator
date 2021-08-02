@@ -1,19 +1,14 @@
 import React from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import EjectIcon from '@material-ui/icons/Eject';
 
-import { appSelectors } from 'selectors';
-import { appActions } from 'actions';
+interface IProps {
+  isPinned: boolean;
+  handlePinned: () => void;
+}
 
-export const PinnedButton: React.FC = () => {
-  const dispatch = useDispatch();
-
-  const isPinned = useSelector(appSelectors.getIsPinned);
-
-  const handlePinned = () => dispatch(appActions.setIsPinned({ isPinned: !isPinned }));
-
+export const PinnedButton: React.FC<IProps> = ({ isPinned, handlePinned }) => {
   const handlePropagation = (event: React.MouseEvent) => event.stopPropagation();
 
   return (

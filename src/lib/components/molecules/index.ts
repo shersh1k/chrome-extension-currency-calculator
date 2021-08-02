@@ -1,3 +1,3 @@
-export { ChooseCurrency } from './ChooseCurrency';
-export { WindowCaption } from './WindowCaption';
+export { ChooseCurrencyButtons } from './ChooseCurrencyButtons';
+export { ChooseCurrencySelection } from './ChooseCurrencySelection';
 export { DatePicker } from './DatePicker';

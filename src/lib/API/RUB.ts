@@ -1,5 +1,4 @@
 import { format, isToday } from 'date-fns';
-import qs from 'qs';
 
 import { IExchangeRate } from 'types';
 

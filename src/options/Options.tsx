@@ -76,22 +76,8 @@ export const Options = () => {
   };
 
   return (
-    <div
-      style={{
-        width: 640,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        border: '1px solid grey',
-      }}
-    >
-      <main
-        style={{
-          padding: 20,
-          maxHeight: 450,
-          overflow: 'auto',
-        }}
-      >
+    <div>
+      <main>
         <FormControl>
           <FormGroup style={{ marginTop: 10 }}>
             <FormControlLabel

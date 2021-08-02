@@ -1,16 +1,13 @@
 import React from 'react';
 
-import { useDispatch } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import CancelIcon from '@material-ui/icons/Cancel';
 
-import { appActions } from 'actions';
+interface IProps {
+  handleClose: () => void;
+}
 
-export const CloseButton: React.FC = () => {
-  const dispatch = useDispatch();
-
-  const handleClose = () => dispatch(appActions.close());
-
+export const CloseButton: React.FC<IProps> = ({ handleClose }) => {
   const handlePropagation = (event: React.MouseEvent) => event.stopPropagation();
 
   return (

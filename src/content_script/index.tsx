@@ -1,10 +1,8 @@
-import { store } from 'core';
-import { optionsActions, appActions } from 'actions';
-import { startReact, appendReactContainer, removeReactContainer } from 'reactContainer';
+import { store, appActions, optionsActions } from 'contentScriptCore';
 import { getOptionsFromStorage } from 'storage';
 import { getSelectedNumber } from 'helpers';
 
-const reactDiv = startReact();
+import { appendReactContainer, removeReactContainer } from './reactContainer';
 
 getOptionsFromStorage((options) => {
   store.dispatch(optionsActions.setOptions(options));
@@ -21,7 +19,7 @@ function documentMouseUpHandler(event: MouseEvent) {
     const number = getSelectedNumber();
     if (!number) return;
 
-    store.dispatch(appActions.open({ number, position: { x: event.pageX, y: event.pageY } }));
+    store.dispatch(appActions.open({ number, position: { x: event.clientX, y: event.clientY } }));
   }, 100);
 }
 
@@ -32,8 +30,8 @@ function documentMouseDownHandler() {
 
 function storeListener() {
   const { isShowed, position } = store.getState().app;
-  if (isShowed) appendReactContainer(reactDiv, position);
-  else removeReactContainer(reactDiv);
+  if (isShowed) appendReactContainer(position);
+  else removeReactContainer();
 }
 
 function storageChangeListener(options: { [key: string]: chrome.storage.StorageChange }) {

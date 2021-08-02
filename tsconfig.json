@@ -18,31 +18,14 @@
       "consts": ["src/lib/constants"],
       "storage": ["src/lib/storage"],
       "helpers": ["src/lib/helpers"],
-      "components": ["src/lib/components"],
       "atoms": ["src/lib/components/atoms"],
       "molecules": ["src/lib/components/molecules"],
-      "organisms": ["src/lib/components/organisms"],
 
-      // content_script
-      "core": ["src/content_script/core"],
-      "actions": ["src/content_script/core/actions"],
-      "selectors": ["src/content_script/core/selectors"],
-      "coreTypes": ["src/content_script/core/types"],
-      "reactContainer": ["src/content_script/reactContainer"]
+      "contentScriptCore": ["src/content_script/core"],
 
-      // options
-      // "core": ["src/content_script/core"],
-      // "actions": ["src/content_script/core/actions"],
-      // "selectors": ["src/content_script/core/selectors"],
-      // "coreTypes": ["src/content_script/core/types"],
-      // "reactContainer": ["src/content_script/reactContainer"],
+      "optionsCore": ["src/options/core"],
 
-      // popup
-      // "core": ["src/content_script/core"],
-      // "actions": ["src/content_script/core/actions"],
-      // "selectors": ["src/content_script/core/selectors"],
-      // "coreTypes": ["src/content_script/core/types"],
-      // "reactContainer": ["src/content_script/reactContainer"]
+      "popupCore": ["src/popup/core"]
     }
   }
 }

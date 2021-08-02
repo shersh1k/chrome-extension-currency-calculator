@@ -1,26 +1,23 @@
 import React from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
 import { ButtonGroup } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { optionsSelectors } from 'selectors';
-import { appActions } from 'actions';
 import { ChooseCurrencyButton } from 'atoms';
+import { ApiTypes } from 'types';
 
-export const ChooseCurrency: React.FC = () => {
+interface IProps {
+  api: ApiTypes;
+  favorites: string[];
+  handleChooseCurrency: (currency: string) => void;
+}
+
+export const ChooseCurrencyButtons: React.FC<IProps> = ({ api, favorites, handleChooseCurrency }) => {
   const classes = useStyles();
-  const dispatch = useDispatch();
-
-  const favorites = useSelector(optionsSelectors.getFavorites);
-
-  const handleChooseCurrency = (currency: string) => {
-    dispatch(appActions.setCurrency({ currency }));
-  };
 
   return (
     <ButtonGroup className={classes.chooseCurrency} orientation="vertical" variant="contained" color="primary">
-      {favorites.map((item) => (
+      {[api, ...favorites].map((item) => (
         <ChooseCurrencyButton key={item} currency={item} onClick={handleChooseCurrency} />
       ))}
     </ButtonGroup>

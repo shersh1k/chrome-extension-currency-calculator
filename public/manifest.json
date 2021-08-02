@@ -5,9 +5,7 @@
   "description": "Currency Calculator",
   "version": "0.0.1",
 
-  "options_ui": {
-    "page": "options.html"
-  },
+  "options_page": "options.html",
 
   "browser_action": {
     "default_icon": "icon.png",
@@ -26,6 +24,6 @@
   },
 
   "permissions": ["storage", "<all_urls>"],
-  
+
   "web_accessible_resources": ["options.html"]
 }
