@@ -1,7 +1,7 @@
-import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from 'consts';
 import { IStorageOptions } from 'types';
+import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from 'consts';
 
-export function getOptionsFromStorage(callback: (options: IStorageOptions) => void) {
+export function getOptionsFromStorage(callback: (options: IStorageOptions) => void): void {
   chrome.storage.sync.get(
     {
       isPageTooltip: IS_PAGE_TOOLTIP,
@@ -9,10 +9,10 @@ export function getOptionsFromStorage(callback: (options: IStorageOptions) => vo
       favorites: FAVORITE,
       naming: NAMING,
     },
-    callback as (items: { [key: string]: any }) => void,
+    callback as unknown as (items: { [key: string]: unknown }) => void,
   );
 }
 
-export function setOptionsToStorage(options: Partial<IStorageOptions>, callback?: () => void) {
+export function setOptionsToStorage(options: Partial<IStorageOptions>, callback?: () => void): void {
   chrome.storage.sync.set(options, callback);
 }

@@ -56,6 +56,6 @@ export const appReducer = createReducer<IAppState, ActionType<typeof appActions>
     number,
     isShowed: true,
   }))
-  .handleAction(appActions.close, (state) => ({
+  .handleAction(appActions.close, () => ({
     ...defaultState,
   }));

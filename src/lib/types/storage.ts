@@ -1,8 +1,8 @@
 export interface IStorageOptions {
-  isPageTooltip: boolean;
-  api: ApiTypes;
-  favorites: string[];
-  naming: NamingTypes;
+  isPageTooltip: boolean | null;
+  api: ApiTypes | null;
+  favorites: string[] | null;
+  naming: NamingTypes | null;
 }
 
 export type ApiTypes = 'BYN' | 'RUB';

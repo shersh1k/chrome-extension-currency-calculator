@@ -1,50 +1,53 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { StylesProvider, jssPreset } from '@material-ui/styles';
 import { Provider } from 'react-redux';
+import { StylesProvider, jssPreset } from '@material-ui/styles';
 import { create } from 'jss';
 
-import { ROOT_ID, POPOVER_CONTAINER_ID, ROOT_POPOVER_ID, REACT_ROOT_ID } from 'consts';
+import { Theme } from 'theme';
 import { IPosition } from 'types';
+import { ROOT_ID, POPOVER_CONTAINER_ID, ROOT_POPOVER_ID, REACT_ROOT_ID } from 'consts';
 import { store } from 'contentScriptCore';
 
 import { App } from '../App';
 
 const { mainRoot, shadowRoot, reactMountPoint } = (() => {
-  const mainRoot = document.createElement('div');
-  mainRoot.id = ROOT_ID;
+  const mainDivRoot = document.createElement('div');
+  mainDivRoot.id = ROOT_ID;
 
   // inline styles for root container
-  mainRoot.style.position = 'fixed';
+  mainDivRoot.style.position = 'fixed';
   // zIndex for showing over all containers
-  mainRoot.style.zIndex = String(Number.MAX_SAFE_INTEGER);
-  mainRoot.style.top = '0px';
-  mainRoot.style.left = '0px';
+  mainDivRoot.style.zIndex = String(Number.MAX_SAFE_INTEGER);
+  mainDivRoot.style.top = '0px';
+  mainDivRoot.style.left = '0px';
 
   // shadow dom for encapsulating styles
-  const shadowRoot = mainRoot.attachShadow({ mode: 'open' });
+  const shadowDivRoot = mainDivRoot.attachShadow({ mode: 'open' });
 
   // react root
-  const reactMountPoint = document.createElement('div');
-  reactMountPoint.id = REACT_ROOT_ID;
-  shadowRoot.appendChild(reactMountPoint);
+  const reactDivMountPoint = document.createElement('div');
+  reactDivMountPoint.id = REACT_ROOT_ID;
+  shadowDivRoot.appendChild(reactDivMountPoint);
 
-  return { mainRoot, shadowRoot, reactMountPoint };
+  return { mainRoot: mainDivRoot, shadowRoot: shadowDivRoot, reactMountPoint: reactDivMountPoint };
 })();
 
-export const popoverContainer = ((shadowRoot: ShadowRoot) => {
+export const popoverContainer = ((shadowDivRoot: ShadowRoot) => {
   const div = document.createElement('div');
   const popoverRoot = document.createElement('div');
   popoverRoot.id = ROOT_POPOVER_ID;
-  shadowRoot.appendChild(popoverRoot);
+  shadowDivRoot.appendChild(popoverRoot);
   div.id = POPOVER_CONTAINER_ID;
   popoverRoot.appendChild(div);
+
   return div;
 })(shadowRoot);
 
-const stylesRoot = ((shadowRoot: ShadowRoot) => {
+const stylesRoot = ((shadowDivRoot: ShadowRoot) => {
   const div = document.createComment('jss-insertion-point');
-  shadowRoot.appendChild(div);
+  shadowDivRoot.appendChild(div);
+
   return div;
 })(shadowRoot);
 
@@ -57,7 +60,9 @@ ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <StylesProvider jss={jss}>
-        <App />
+        <Theme>
+          <App />
+        </Theme>
       </StylesProvider>
     </Provider>
   </React.StrictMode>,
@@ -79,13 +84,16 @@ export function removeReactContainer() {
 export function changeReactContainerPosition({ x, y }: IPosition) {
   const div = document.getElementById(ROOT_ID);
   if (!div) return;
-  const width = div.getBoundingClientRect().width;
+  const { width } = div.getBoundingClientRect();
 
   // min position
+  // eslint-disable-next-line no-param-reassign
   x = x < 0 ? 0 : x;
+  // eslint-disable-next-line no-param-reassign
   y = y < 0 ? 0 : y;
 
   // max position
+  // eslint-disable-next-line no-param-reassign
   x = x > window.innerWidth - width ? window.innerWidth - width : x;
 
   mainRoot.style.top = `${y}px`;

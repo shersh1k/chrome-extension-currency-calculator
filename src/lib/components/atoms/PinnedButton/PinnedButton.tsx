@@ -13,12 +13,12 @@ export const PinnedButton: React.FC<IProps> = ({ isPinned, handlePinned }) => {
 
   return (
     <IconButton
-      onMouseUp={handlePropagation}
-      onMouseDown={handlePropagation}
-      title={isPinned ? 'Открепить' : 'Закрепить'}
-      size="small"
-      onClick={handlePinned}
       color={isPinned ? 'primary' : undefined}
+      size="small"
+      title={isPinned ? 'Открепить' : 'Закрепить'}
+      onClick={handlePinned}
+      onMouseDown={handlePropagation}
+      onMouseUp={handlePropagation}
     >
       <EjectIcon />
     </IconButton>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
-import CancelIcon from '@material-ui/icons/Cancel';
+import CloseIcon from '@material-ui/icons/Close';
 
 interface IProps {
   handleClose: () => void;
@@ -12,14 +12,14 @@ export const CloseButton: React.FC<IProps> = ({ handleClose }) => {
 
   return (
     <IconButton
-      onMouseUp={handlePropagation}
-      onMouseDown={handlePropagation}
-      title="Закрыть калькулятор"
-      size="small"
-      onClick={handleClose}
       color="secondary"
+      size="small"
+      title="Закрыть калькулятор"
+      onClick={handleClose}
+      onMouseDown={handlePropagation}
+      onMouseUp={handlePropagation}
     >
-      <CancelIcon />
+      <CloseIcon />
     </IconButton>
   );
 };

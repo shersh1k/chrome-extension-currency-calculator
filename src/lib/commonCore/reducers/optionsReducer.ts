@@ -1,21 +1,20 @@
-import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from 'consts';
-import { ApiTypes, IAbbreviation, NamingTypes } from 'types';
+import { ApiTypes, NamingTypes } from 'types';
 import { ActionType, createReducer } from 'typesafe-actions';
 
 import { optionsActions } from '../actions';
 
 export interface IOptionsState {
-  isPageTooltip: boolean;
-  api: ApiTypes;
+  isPageTooltip: boolean | null;
+  api: ApiTypes | null;
   favorites: string[];
-  naming: NamingTypes;
+  naming: NamingTypes | null;
 }
 
 const defaultState: IOptionsState = {
-  isPageTooltip: IS_PAGE_TOOLTIP,
-  api: API,
-  favorites: FAVORITE,
-  naming: NAMING,
+  isPageTooltip: null,
+  api: null,
+  favorites: [],
+  naming: null,
 };
 
 export const optionsReducer = createReducer<IOptionsState, ActionType<typeof optionsActions>>(defaultState)

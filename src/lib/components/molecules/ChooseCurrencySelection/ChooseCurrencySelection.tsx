@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+
 import { ApiTypes } from 'types';
-import { MenuItem, Select } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 interface IProps {
   api: ApiTypes;
@@ -20,10 +22,11 @@ export const ChooseCurrencySelection: React.FC<IProps> = ({
   container,
 }) => {
   const classes = useStyles();
+
   return (
     <Select
-      className={classes.selectStyled}
       MenuProps={{ container }}
+      className={classes.selectStyled}
       value={choosedCurrency}
       onChange={handleChooseCurrency}
     >
@@ -36,7 +39,7 @@ export const ChooseCurrencySelection: React.FC<IProps> = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     selectStyled: {
       '&.MuiInput-underline.Mui-focused:after': {

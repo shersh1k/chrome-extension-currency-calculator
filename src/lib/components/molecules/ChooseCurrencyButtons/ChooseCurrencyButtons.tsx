@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { ButtonGroup } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import { ChooseCurrencyButton } from 'atoms';
 import { ApiTypes } from 'types';
@@ -16,22 +16,18 @@ export const ChooseCurrencyButtons: React.FC<IProps> = ({ api, favorites, handle
   const classes = useStyles();
 
   return (
-    <ButtonGroup className={classes.chooseCurrency} orientation="vertical" variant="contained" color="primary">
+    <ButtonGroup className={classes.chooseCurrency} orientation="vertical" variant="outlined">
       {[api, ...favorites].map((item) => (
-        <ChooseCurrencyButton key={item} currency={item} onClick={handleChooseCurrency} />
+        <ChooseCurrencyButton currency={item} key={item} onClick={handleChooseCurrency} />
       ))}
     </ButtonGroup>
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     chooseCurrency: {
-      border: '1px solid grey',
-      borderRadius: 10,
-      background: 'white',
-      overflow: 'hidden',
-      padding: 10,
+      padding: 5,
     },
   }),
 );

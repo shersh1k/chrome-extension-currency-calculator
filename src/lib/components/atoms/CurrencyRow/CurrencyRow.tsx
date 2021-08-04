@@ -1,16 +1,14 @@
 import React from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-interface IProps {}
-
-export const CurrencyRow: React.FC<IProps> = ({ children }) => {
+export const CurrencyRow: React.FC = ({ children }) => {
   const classes = useStyles();
 
   return <div className={classes.row}>{children}</div>;
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     row: {
       display: 'flex',

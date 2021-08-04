@@ -8,4 +8,4 @@ export const POPOVER_CONTAINER_ID = 'shersh1k_currency_calculator_popover_contai
 export const API: ApiTypes = 'BYN';
 export const NAMING: NamingTypes = 'SHORT';
 export const FAVORITE: string[] = ['USD', 'EUR'];
-export const IS_PAGE_TOOLTIP: boolean = true;
+export const IS_PAGE_TOOLTIP = true;

@@ -1,153 +1,177 @@
 import React, { useEffect, useState } from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { AppBar, FormControlLabel, Switch, TextField, Tabs, Tab, Box } from '@material-ui/core';
+import { useDispatch, useSelector } from 'react-redux';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Box from '@material-ui/core/Box';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import TextField from '@material-ui/core/TextField';
 
-import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
 import { Api } from 'API';
-import { setOptionsToStorage } from 'storage';
-import { ApiTypes, IExchangeRate, NamingTypes } from 'types';
-import { formatMoneySpaces, getName } from 'helpers';
+import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
+import { IExchangeRate } from 'types';
+import { getOptionsFromStorage, setOptionsToStorage } from 'storage';
+import { formatMoneySpaces, getSelectedNumber } from 'helpers';
+import { optionsActions, optionsSelectors } from 'commonCore';
+import { appActions, appSelectors } from 'popupCore';
 
-interface IProps {
-  isPageTooltip: boolean;
-  api: ApiTypes;
-  favorites: string[];
-  naming: NamingTypes;
-
-  number?: number;
-}
-
-export const Popup: React.FC<IProps> = ({
-  isPageTooltip: initialIsPageTooltip,
-  api,
-  favorites,
-  naming,
-  number: initialNumber,
-}) => {
+export const Popup: React.FC = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
-  const [isPageTooltip, setIsPageTooltip] = useState<boolean>(initialIsPageTooltip);
+  const isPageTooltip = useSelector(optionsSelectors.getIsPageTooltip);
+  const api = useSelector(optionsSelectors.getApi);
+  const favorites = useSelector(optionsSelectors.getFavorites);
+  const naming = useSelector(optionsSelectors.getNaming);
+  const date = useSelector(appSelectors.getDate);
+  const number = useSelector(appSelectors.getNumber);
+  const currency = useSelector(appSelectors.getCurrency);
+  const tab = useSelector(appSelectors.getTab);
+  const exchangeRates = useSelector(appSelectors.getExchangeRates);
+  const exchangeRatesCrypto = useSelector(appSelectors.getExchangeRatesCrypto);
+  const loading = useSelector(appSelectors.getLoading);
+
   const [currencys, setCurrencys] = useState<IExchangeRate[]>([]);
-  const [number, setNumber] = useState<string | number | undefined>(initialNumber);
-  const [date, setDate] = useState<Date>(new Date());
-  const [currentTab, setCurrentTab] = useState(initialNumber ? 1 : 0);
-  const [choosedCurrency, setChoosedCurrency] = useState<string>(api);
-  const [error, setError] = useState<false | string>(false);
   const [rates, setRates] = useState<IExchangeRate[]>([]);
-  const [cryproRates, setCryptoRates] = useState<any[]>([]);
+
+  const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    dispatch(appActions.setTab({ tab: newValue }));
+  };
 
   const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    setChoosedCurrency((event.target as HTMLInputElement).value);
+    dispatch(appActions.setCurrency({ currency: (event.target as HTMLInputElement).value }));
   };
 
   const hanldeChangeNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNumber(event.target.value);
+    dispatch(appActions.setNumber({ number: event.target.value }));
   };
 
-  const handleChangeDate = (date: Date | null) => {
-    if (date) setDate(date);
+  const handleChangeDate = (newDate: Date | null) => {
+    dispatch(appActions.setDate({ date: newDate }));
   };
 
-  const handleClearDate = () => setDate(new Date());
+  const handleClearDate = () => {
+    dispatch(appActions.setDate({ date: new Date() }));
+  };
 
   const saveOptions = (event: React.ChangeEvent<{}>, checked: boolean) => {
-    setIsPageTooltip(checked);
     setOptionsToStorage({ isPageTooltip: checked });
   };
 
-  const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setCurrentTab(newValue);
-  };
-
   useEffect(() => {
-    fetch('https://api.coincap.io/v2/assets')
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res);
-        setCryptoRates(
-          res.data.slice(0, 10).map((item: any) => ({
-            abbreviation: item.symbol,
-            id: item.id,
-            name: item.name,
-            priceUsd: item.priceUsd,
-            rank: item.rank,
-          })),
-        );
-      });
-  }, []);
+    dispatch(appActions.getExchangeRatesCryptoRequest());
 
-  useEffect(() => {
-    Api.getExchangeRates(api, date).then((loadedRates) => {
-      const favoriteRates = loadedRates.filter((item) => favorites.find((fav) => item.abbreviation === fav));
-      if (choosedCurrency === api) return setRates(favoriteRates);
-      const conversionCurrency = loadedRates.find((item) => item.abbreviation === choosedCurrency);
-      if (!conversionCurrency) return setError(`В выбранном API отсуствует ${choosedCurrency}`);
-      const { exchange, scale } = conversionCurrency;
-      const conversionRates = [
-        {
-          abbreviation: Api[api].abbreviation,
-          exchange: 1 / exchange,
-          id: choosedCurrency,
-          name: Api[api].name,
-          scale: 1 / scale,
-        },
-        ...favoriteRates
-          .filter((item) => item.abbreviation !== choosedCurrency)
-          .map((item) => {
-            item.exchange = (item.exchange / exchange) * scale;
-            item.conversion = true;
-            return item;
-          }),
-      ];
-      setRates(conversionRates);
+    getOptionsFromStorage((options) => {
+      dispatch(optionsActions.setOptions(options));
+      dispatch(appActions.setCurrency({ currency: options.api }));
     });
-  }, [api, favorites, date, choosedCurrency]);
+
+    chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, (selection) => {
+      if (!selection) return;
+
+      const newNumber = getSelectedNumber(selection[0]) ?? null;
+      if (newNumber) {
+        dispatch(appActions.setNumber({ number: newNumber }));
+        dispatch(appActions.setTab({ tab: 1 }));
+      }
+    });
+
+    chrome.storage.onChanged.addListener(storageChangeListener);
+
+    function storageChangeListener(options: { [key: string]: chrome.storage.StorageChange }) {
+      dispatch(
+        optionsActions.setOptions({
+          isPageTooltip: options.isPageTooltip?.newValue,
+          api: options.api?.newValue,
+          favorites: options.favorites?.newValue,
+          naming: options.naming?.newValue,
+        }),
+      );
+    }
+
+    return () => {
+      chrome.storage.onChanged.removeListener(storageChangeListener);
+    };
+  }, [dispatch]);
 
   useEffect(() => {
-    Api.getExchangeRates(api, date).then((rates) => {
-      setCurrencys(rates.filter((item) => favorites.find((favorite) => item.abbreviation === favorite)));
-    });
-  }, [api, date, favorites]);
+    if (!api || !favorites || !currency) return;
+    dispatch(appActions.getExchangeRatesRequest());
+  }, [dispatch, api, favorites, date, currency]);
+
+  useEffect(() => {
+    if (!api || !favorites || !currency) return;
+    setCurrencys(exchangeRates.filter((item) => favorites.find((favorite) => item.abbreviation === favorite)));
+
+    const favoriteRates = exchangeRates.filter((item) => favorites.find((fav) => item.abbreviation === fav));
+    if (currency === api) return setRates(favoriteRates);
+    const conversionCurrency = exchangeRates.find((item) => item.abbreviation === currency);
+    if (!conversionCurrency) return; // setError(`В выбранном API отсуствует ${currency}`)
+    const { exchange, scale } = conversionCurrency;
+    const conversionRates = [
+      {
+        abbreviation: Api[api].abbreviation,
+        exchange: 1 / exchange,
+        id: currency || api,
+        name: Api[api].name,
+        scale: 1 / scale,
+      },
+      ...favoriteRates
+        .filter((item) => item.abbreviation !== currency)
+        .map((item) => ({
+          ...item,
+          exchange: (item.exchange / exchange) * scale,
+          conversion: true,
+        })),
+    ];
+    setRates(conversionRates);
+  }, [api, currency, exchangeRates, favorites]);
+
+  if (api === null || favorites === null || isPageTooltip === null || naming === null) return null;
 
   return (
     <div className={classes.root}>
       <main className={classes.main}>
-        <AppBar position="static">
-          <Tabs value={currentTab} variant="fullWidth" onChange={handleChangeTab} aria-label="simple tabs example">
+        <AppBar position="sticky">
+          <Tabs value={tab} variant="fullWidth" onChange={handleChangeTab}>
             <Tab label="Курсы валют" />
             <Tab label="Калькулятор" />
             <Tab label="Криптовалюты" />
           </Tabs>
         </AppBar>
-        <Box hidden={currentTab !== 0} p={3}>
-          <DatePicker date={date} clearDate={handleClearDate} onChange={handleChangeDate} />
+        <Box hidden={tab !== 0} p={3}>
+          <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
+          {loading && 'Загрузка...'}
           {currencys.map((item) => (
             <CurrencyRow key={item.id}>
-              <span className={classes.abbreviation}>
-                {item.scale} {item.name}:
-              </span>
-              <span className={classes.value}>{item.exchange.toFixed(4)}</span>
+              <CurrencyName scale currency={item} naming={naming} />
+              <CurrencyValue value={item.exchange.toFixed(4)} />
             </CurrencyRow>
           ))}
         </Box>
-        <Box hidden={currentTab !== 1} p={3}>
+        <Box hidden={tab !== 1} p={3}>
+          <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
           <CurrencyRow>
             <ChooseCurrencySelection
               api={api}
+              choosedCurrency={currency || api}
               favorites={favorites}
-              choosedCurrency={choosedCurrency}
               handleChooseCurrency={handleChangeCurrency}
             />
             <TextField
-              className={classes.textFieldStyled}
               fullWidth
+              className={classes.textFieldStyled}
               type="number"
-              value={number ?? 0}
+              value={number ?? ''}
               onChange={hanldeChangeNumber}
             />
           </CurrencyRow>
+          {loading && 'Загрузка...'}
           {rates.map((item) => (
             <CurrencyRow key={item.id}>
               <CurrencyName currency={item} naming={naming} />
@@ -155,21 +179,19 @@ export const Popup: React.FC<IProps> = ({
             </CurrencyRow>
           ))}
         </Box>
-        <Box hidden={currentTab !== 2} p={3}>
-          {cryproRates.map((item) => (
+        <Box hidden={tab !== 2} p={3}>
+          {loading && 'Загрузка...'}
+          {exchangeRatesCrypto.map((item) => (
             <CurrencyRow key={item.id}>
-              <span className={classes.abbreviation}>
-                {item.rank}. {item.name}:
-              </span>
-              <span className={classes.value}>{formatMoneySpaces(Number(item.priceUsd).toFixed(5))}$</span>
+              <CurrencyName name={`${item.rank}. ${item.name}:`} />
+              <CurrencyValue value={`${formatMoneySpaces(Number(item.priceUsd).toFixed(5))} $`} />
             </CurrencyRow>
           ))}
         </Box>
       </main>
       <footer className={classes.footer}>
         <FormControlLabel
-          control={<Switch checked={isPageTooltip} onChange={saveOptions} />}
-          color="primary"
+          control={<Switch checked={isPageTooltip} color="primary" onChange={saveOptions} />}
           label="Работать на странице"
         />
         <OptionsButton />
@@ -178,10 +200,11 @@ export const Popup: React.FC<IProps> = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     root: {
       width: 400,
+      minHeight: 500,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
@@ -198,7 +221,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     textFieldStyled: {
       '& input': {
-        textAlign: 'center',
+        textAlign: 'right',
         '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
           '-webkit-appearance': 'none',
           '-moz-appearance': 'none',

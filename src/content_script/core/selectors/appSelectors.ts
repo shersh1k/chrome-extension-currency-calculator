@@ -1,6 +1,7 @@
 import { IState } from '../types';
 
 export const getAppState = ({ app }: IState) => app;
+export type AppStateType = ReturnType<typeof getAppState>;
 
 export const getIsPinned = ({ app: { isPinned } }: IState) => isPinned;
 export const getIsShowed = ({ app: { isShowed } }: IState) => isShowed;

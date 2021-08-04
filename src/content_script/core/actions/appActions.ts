@@ -1,6 +1,5 @@
-import { createAction } from 'typesafe-actions';
-
 import { IPosition } from 'types';
+import { createAction } from 'typesafe-actions';
 
 import { ACTIONS } from './constants';
 

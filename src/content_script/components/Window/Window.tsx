@@ -46,6 +46,7 @@ export const Window: React.FC<IWindowProps> = ({ content, children }) => {
 
     document.addEventListener('mouseup', handleEndMoveOnDocument);
     document.addEventListener('mousemove', handleMoveOnDocument);
+
     return () => {
       document.removeEventListener('mouseup', handleEndMoveOnDocument);
       document.removeEventListener('mousemove', handleMoveOnDocument);
@@ -53,34 +54,25 @@ export const Window: React.FC<IWindowProps> = ({ content, children }) => {
   }, [isMoving, cursorPosition]);
 
   return (
-    <div className={classes.window}>
+    <>
       <div className={classes.caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
         <OptionsButton />
-        <PinnedButton isPinned={isPinned} handlePinned={handlePinned} />
+        <PinnedButton handlePinned={handlePinned} isPinned={isPinned} />
         <CloseButton handleClose={handleClose} />
       </div>
       <div className={classes.content}>{content ?? children}</div>
-    </div>
+    </>
   );
 };
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    window: {
-      border: '1px solid grey',
-      background: 'white',
-      borderRadius: 10,
-    },
     caption: {
       display: 'flex',
-      borderTopLeftRadius: 10,
-      borderTopRightRadius: 10,
-      borderBottom: '1px solid grey',
       alignItems: 'center',
       justifyContent: 'space-between',
-      overflow: 'hidden',
+      borderBottom: `1px solid ${theme.palette.divider}`,
       cursor: 'move',
-      backgroundColor: 'lightgray',
     },
     content: {
       padding: 10,

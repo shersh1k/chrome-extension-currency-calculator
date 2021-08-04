@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { DatePicker as MuiDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { format, isToday } from 'date-fns';
-import ruLocale from 'date-fns/locale/ru';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 import DateFnsUtils from '@date-io/date-fns';
-import { Button } from '@material-ui/core';
+import { DatePicker as MuiDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import ruLocale, { format, isToday } from 'date-fns';
 
 interface IProps {
   date: Date;
@@ -19,19 +18,26 @@ export const DatePicker: React.FC<IProps> = ({ date, onChange, clearDate, contai
 
   return (
     <div className={classes.datePicker}>
-      <MuiPickersUtilsProvider utils={DateFnsUtils} locale={ruLocale}>
+      <MuiPickersUtilsProvider locale={ruLocale} utils={DateFnsUtils}>
         <MuiDatePicker
-          PopoverProps={{ container }}
           autoOk
-          variant="inline"
           disableFuture
+          PopoverProps={{ container }}
+          className={classes.muiDatePicker}
           format="Курс на dd.MM.yyyy"
           value={date}
+          variant="inline"
           onChange={onChange}
         />
       </MuiPickersUtilsProvider>
       {!isToday(date) && (
-        <Button size="small" title={format(new Date(), 'dd.MM.yyyy')} color="primary" onClick={clearDate}>
+        <Button
+          className={classes.muiButton}
+          color="primary"
+          size="small"
+          title={format(new Date(), 'dd.MM.yyyy')}
+          onClick={clearDate}
+        >
           Сегодня
         </Button>
       )}
@@ -39,11 +45,17 @@ export const DatePicker: React.FC<IProps> = ({ date, onChange, clearDate, contai
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     datePicker: {
       display: 'flex',
       alignItems: 'center',
+    },
+    muiDatePicker: {
+      width: 150,
+    },
+    muiButton: {
+      marginLeft: 20,
     },
   }),
 );

@@ -1,6 +1,7 @@
-import { store, appActions, optionsActions } from 'contentScriptCore';
 import { getOptionsFromStorage } from 'storage';
 import { getSelectedNumber } from 'helpers';
+import { optionsActions } from 'commonCore';
+import { store, appActions } from 'contentScriptCore';
 
 import { appendReactContainer, removeReactContainer } from './reactContainer';
 
@@ -29,8 +30,11 @@ function documentMouseDownHandler() {
 }
 
 function storeListener() {
-  const { isShowed, position } = store.getState().app;
-  if (isShowed) appendReactContainer(position);
+  const {
+    app: { isShowed, position },
+    options: { isPageTooltip },
+  } = store.getState();
+  if (isShowed && isPageTooltip) appendReactContainer(position);
   else removeReactContainer();
 }
 

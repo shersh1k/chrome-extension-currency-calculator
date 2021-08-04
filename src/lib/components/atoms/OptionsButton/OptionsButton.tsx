@@ -1,7 +1,7 @@
 import React from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
-import SettingsApplicationsIcon from '@material-ui/icons/SettingsApplications';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 const OPTIONS_URL = chrome.extension.getURL('options.html');
 
@@ -12,14 +12,14 @@ export const OptionsButton: React.FC = () => {
 
   return (
     <IconButton
-      onMouseUp={handlePropagation}
-      onMouseDown={handlePropagation}
-      title="Настройки расширения"
-      size="small"
       color="primary"
+      size="small"
+      title="Настройки расширения"
       onClick={handleOpenOptions}
+      onMouseDown={handlePropagation}
+      onMouseUp={handlePropagation}
     >
-      <SettingsApplicationsIcon />
+      <SettingsIcon />
     </IconButton>
   );
 };

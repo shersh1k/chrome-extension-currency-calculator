@@ -1,5 +1,6 @@
-import qs from 'qs';
+/* eslint-disable camelcase */
 import { format, isToday } from 'date-fns';
+import qs from 'qs';
 
 import { IExchangeRate } from 'types';
 
@@ -22,9 +23,12 @@ export class BYN extends BaseApi {
       };
       const result = await fetch(`${this.url}?${qs.stringify(body)}`);
       const data: T = await result.json();
+
       return data;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+
       return {} as T;
     }
   }
