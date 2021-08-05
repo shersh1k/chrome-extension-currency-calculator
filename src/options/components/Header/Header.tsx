@@ -10,7 +10,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 import { IS_PAGE_TOOLTIP, API, FAVORITE, NAMING } from 'consts';
-import { setOptionsToStorage } from 'storage';
+import { setCacheToStorage, setOptionsToStorage } from 'storage';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'optionsCore';
 
@@ -36,6 +36,8 @@ export const Header = () => {
     dispatch(optionsActions.setFavorites({ favorites: FAVORITE }));
     dispatch(optionsActions.setNaming({ naming: NAMING }));
     dispatch(optionsActions.setIsPageTooltip({ isPageTooltip: IS_PAGE_TOOLTIP }));
+
+    setCacheToStorage({ currencys: null, loadApi: null, loadDate: null });
   };
 
   const saveOptions = () => {

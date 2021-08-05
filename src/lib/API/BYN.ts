@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import { format, isToday } from 'date-fns';
 import qs from 'qs';
-
 import { IExchangeRate } from 'types';
 
 import { BaseApi } from './BaseApi';
@@ -13,30 +12,20 @@ export class BYN extends BaseApi {
 
   name = 'Белорусский рубль';
 
-  periodicity = 0;
+  public async load(date: Date) {
+    const body = (periodicity: 0 | 1) => ({
+      periodicity,
+      ...(!isToday(date) && { ondate: format(date, 'yyyy-M-d') }),
+    });
 
-  public async get<T>(date?: Date) {
-    try {
-      const body = {
-        periodicity: this.periodicity,
-        ...(date && !isToday(date) && { ondate: format(date, 'yyyy-M-d') }),
-      };
-      const result = await fetch(`${this.url}?${qs.stringify(body)}`);
-      const data: T = await result.json();
+    const result = await Promise.all([
+      fetch(`${this.url}?${qs.stringify(body(0))}`),
+      fetch(`${this.url}?${qs.stringify(body(1))}`),
+    ]);
 
-      return data;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
+    const data: IBYN[][] = await Promise.all(result.map((item) => item.json()));
 
-      return {} as T;
-    }
-  }
-
-  public async getExchangeRates(date?: Date) {
-    const data = await this.get<IByn[]>(date);
-
-    const result: IExchangeRate[] = data.map((item) => ({
+    const newCurrencys: IExchangeRate[] = data.flat().map((item) => ({
       id: item.Cur_ID,
       abbreviation: item.Cur_Abbreviation,
       exchange: item.Cur_OfficialRate,
@@ -44,17 +33,11 @@ export class BYN extends BaseApi {
       scale: item.Cur_Scale,
     }));
 
-    return result;
-  }
-
-  public async getAbbreviations() {
-    const data: IByn[] = await this.get();
-
-    return data.map((item) => ({ abbreviation: item.Cur_Abbreviation, id: item.Cur_ID, name: item.Cur_Name }));
+    return newCurrencys;
   }
 }
 
-export interface IByn {
+interface IBYN {
   Cur_Abbreviation: string;
   Cur_ID: number;
   Cur_Name: string;

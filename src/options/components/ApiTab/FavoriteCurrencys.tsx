@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,38 +9,50 @@ import ClearIcon from '@material-ui/icons/Clear';
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
 import clsx from 'clsx';
 
+import { IAbbreviation } from 'types';
 import { optionsActions, optionsSelectors } from 'commonCore';
 
-export const FavoriteCurrencys: React.FC = () => {
+interface IProps {
+  allAbbreviations: IAbbreviation[];
+}
+
+export const FavoriteCurrencys: React.FC<IProps> = ({ allAbbreviations }) => {
   const dispatch = useDispatch();
   const { list, draggableList, item, itemSpan, draggableItem } = useStyles();
 
   const favorites = useSelector(optionsSelectors.getFavorites);
+  const [favExt, setFavExt] = useState<IAbbreviation[]>([]);
 
   const onDragEnd = ({ source, destination }: DropResult) => {
     if (!destination) return;
 
-    const items = reorder(favorites, source.index, destination.index);
-
-    dispatch(optionsActions.setFavorites({ favorites: items }));
+    const newFavorites = reorder(favExt, source.index, destination.index);
+    setFavExt(newFavorites);
+    dispatch(optionsActions.setFavorites({ favorites: newFavorites.map((favExtend) => favExtend.abbreviation) }));
   };
 
-  const handleDelete = (favorite: string) => {
-    const newFavorites = favorites.filter((fav) => fav !== favorite);
-    dispatch(optionsActions.setFavorites({ favorites: newFavorites }));
+  const handleDelete = (favorite: IAbbreviation) => {
+    const newFavorites = favExt.filter((fav) => fav !== favorite);
+    setFavExt(newFavorites);
+    dispatch(optionsActions.setFavorites({ favorites: newFavorites.map((favExtend) => favExtend.abbreviation) }));
   };
 
-  if (favorites === null) return null;
+  useEffect(() => {
+    const favExtend = favorites
+      .map((fav) => allAbbreviations.find((abbr) => abbr.abbreviation === fav))
+      .filter((fav) => fav !== undefined) as IAbbreviation[];
+    setFavExt(favExtend);
+  }, [dispatch, favorites, allAbbreviations]);
 
   return (
-    <div>
+    <div style={{ position: 'sticky', top: 100 }}>
       <Typography align="center">Порядок показа валют:</Typography>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
           {(dropProvided, dropSnapshot) => (
             <div className={clsx(list, dropSnapshot.isDraggingOver && draggableList)} ref={dropProvided.innerRef}>
-              {favorites.map((favorite, index) => (
-                <Draggable draggableId={String(favorite)} index={index} key={favorite}>
+              {favExt.map((favorite, index) => (
+                <Draggable draggableId={String(favorite.id)} index={index} key={favorite.id}>
                   {(dragProvided, dragSnapshot) => (
                     <div
                       ref={dragProvided.innerRef}
@@ -48,7 +60,7 @@ export const FavoriteCurrencys: React.FC = () => {
                       {...dragProvided.dragHandleProps}
                       className={clsx(item, dragSnapshot.isDragging && draggableItem)}
                     >
-                      {index + 1}. {favorite}
+                      {index + 1}. {favorite.name}({favorite.abbreviation})
                       <span className={itemSpan}>
                         <IconButton color="secondary" size="small" onClick={() => handleDelete(favorite)}>
                           <ClearIcon />
@@ -68,7 +80,7 @@ export const FavoriteCurrencys: React.FC = () => {
   );
 };
 
-const reorder = (list: string[], startIndex: number, endIndex: number) => {
+const reorder = (list: IAbbreviation[], startIndex: number, endIndex: number) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);

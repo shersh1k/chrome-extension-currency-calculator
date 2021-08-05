@@ -9,12 +9,10 @@ import { store } from 'optionsCore';
 import { Options } from './Options';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <Theme>
-        <Options />
-      </Theme>
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <Theme>
+      <Options />
+    </Theme>
+  </Provider>,
   document.getElementById('root'),
 );

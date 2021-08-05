@@ -8,6 +8,7 @@ import { Api } from 'API';
 import { CurrencyName, CurrencyRow, CurrencyValue } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
 import { IExchangeRate } from 'types';
+import { getCacheFromStorage } from 'storage';
 import { optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'contentScriptCore';
 
@@ -77,14 +78,43 @@ export const CurrencyCalculator: React.FC = () => {
         ];
         setRates(conversionRates);
       })
-      .catch(() => setError(true))
+      .catch(async () => {
+        setError(true);
+        const { currencys } = await getCacheFromStorage();
+        // eslint-disable-next-line no-debugger
+        debugger;
+        if (!currencys) return;
+        const favoriteRates = [api, ...favorites]
+          .map((favorite) => currencys.find((loaded) => favorite === loaded.abbreviation))
+          .filter((item) => item !== undefined) as IExchangeRate[];
+
+        if (currency === api) return setRates(favoriteRates);
+        const conversionCurrency = currencys.find((item) => item.abbreviation === currency);
+        if (!conversionCurrency) return;
+        const { exchange, scale } = conversionCurrency;
+        const conversionRates = [
+          {
+            abbreviation: Api[api].abbreviation,
+            exchange: 1 / exchange,
+            id: currency,
+            name: Api[api].name,
+            scale: 1 / scale,
+          },
+          ...favoriteRates
+            .filter((item) => item.abbreviation !== currency)
+            .map((item) => ({
+              ...item,
+              exchange: (item.exchange / exchange) * scale,
+              conversion: true,
+            })),
+        ];
+        setRates(conversionRates);
+      })
       .finally(() => setLoading(false));
   }, [api, favorites, date, currency]);
 
   if (api === null || favorites === null || naming === null) return null;
   if (number === null || currency === null) return null;
-
-  if (error) return <div className={classes.root}>{error}</div>;
 
   return (
     <div className={classes.root}>
@@ -106,7 +136,8 @@ export const CurrencyCalculator: React.FC = () => {
         />
       </CurrencyRow>
       {loading && 'Загрузка курсов...'}
-      {error && 'Ошибка получения курсов валют, попробуйте выбрать другую дату, или повторить запрос позже'}
+      {error &&
+        'Ошибка получения курсов валют, попробуйте выбрать другую дату, или повторить запрос позже(по возможности отображается последний кэшированный вариант)'}
       <div className={classes.exchangeResults}>
         {rates.map((item) => (
           <CurrencyRow key={item.id}>
