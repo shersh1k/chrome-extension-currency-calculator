@@ -21,7 +21,7 @@ function documentMouseUpHandler(event: MouseEvent) {
     if (!number) return;
 
     store.dispatch(appActions.open({ number, position: { x: event.clientX, y: event.clientY } }));
-  }, 100);
+  }, 0);
 }
 
 function documentMouseDownHandler() {
@@ -45,6 +45,7 @@ function storageChangeListener(options: { [key: string]: chrome.storage.StorageC
       api: options.api?.newValue,
       favorites: options.favorites?.newValue,
       naming: options.naming?.newValue,
+      latestCurrency: options.latestCurrency?.newValue,
     }),
   );
 }

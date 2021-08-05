@@ -6,7 +6,6 @@ import { ACTIONS } from './constants';
 export const setTab = createAction(ACTIONS.SET_TAB_TO_STORE)<{ tab: number }>();
 
 export const setNumber = createAction(ACTIONS.SET_NUMBER_TO_STORE)<{ number: number | string | null }>();
-export const setCurrency = createAction(ACTIONS.SET_CURRENCY_TO_STORE)<{ currency: string | null }>();
 export const setDate = createAction(ACTIONS.SET_DATE_TO_STORE)<{ date: Date | null }>();
 
 export const getExchangeRatesRequest = createAction(ACTIONS.GET_EXCHANGE_RATES_REQUEST)();

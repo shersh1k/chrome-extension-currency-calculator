@@ -13,7 +13,7 @@ class ApiService {
     return abbreviations;
   }
 
-  public async getExchangeRates(apiType: ApiTypes, date: Date) {
+  public async getExchangeRates(apiType: ApiTypes, date: Date = new Date()) {
     const exchangeRates = await this[apiType].getExchangeRates(date);
 
     return exchangeRates;

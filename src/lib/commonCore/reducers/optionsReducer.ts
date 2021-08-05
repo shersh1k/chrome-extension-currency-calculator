@@ -1,5 +1,6 @@
 import { ApiTypes, NamingTypes } from 'types';
 import { ActionType, createReducer } from 'typesafe-actions';
+import { API } from 'consts';
 
 import { optionsActions } from '../actions';
 
@@ -8,6 +9,7 @@ export interface IOptionsState {
   api: ApiTypes | null;
   favorites: string[];
   naming: NamingTypes | null;
+  latestCurrency: string;
 }
 
 const defaultState: IOptionsState = {
@@ -15,18 +17,23 @@ const defaultState: IOptionsState = {
   api: null,
   favorites: [],
   naming: null,
+  latestCurrency: API,
 };
 
 export const optionsReducer = createReducer<IOptionsState, ActionType<typeof optionsActions>>(defaultState)
-  .handleAction(optionsActions.setOptions, (state, { payload: { isPageTooltip, api, favorites, naming } }) => {
-    return {
-      ...state,
-      ...(typeof isPageTooltip === 'boolean' && { isPageTooltip }),
-      ...(api && { api }),
-      ...(favorites && { favorites }),
-      ...(naming && { naming }),
-    };
-  })
+  .handleAction(
+    optionsActions.setOptions,
+    (state, { payload: { isPageTooltip, api, favorites, naming, latestCurrency } }) => {
+      return {
+        ...state,
+        ...(typeof isPageTooltip === 'boolean' && { isPageTooltip }),
+        ...(api && { api }),
+        ...(favorites && { favorites }),
+        ...(naming && { naming }),
+        ...(latestCurrency && { latestCurrency }),
+      };
+    },
+  )
   .handleAction(optionsActions.setIsPageTooltip, (state, { payload: { isPageTooltip } }) => ({
     ...state,
     isPageTooltip,
@@ -42,4 +49,8 @@ export const optionsReducer = createReducer<IOptionsState, ActionType<typeof opt
   .handleAction(optionsActions.setNaming, (state, { payload: { naming } }) => ({
     ...state,
     naming,
+  }))
+  .handleAction(optionsActions.setLatestCurrency, (state, { payload: { latestCurrency } }) => ({
+    ...state,
+    latestCurrency,
   }));

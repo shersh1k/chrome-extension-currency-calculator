@@ -2,32 +2,36 @@ import React, { useState, useEffect } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 
-import { Api } from 'API';
 import { CurrencyName, CurrencyRow, CurrencyValue } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
 import { IExchangeRate } from 'types';
-import { getCacheFromStorage } from 'storage';
-import { optionsSelectors } from 'commonCore';
+import { setOptionsToStorage } from 'storage';
+import { getCalculatedRates } from 'helpers';
+import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'contentScriptCore';
 
 import { popoverContainer } from '../../reactContainer';
 
 export const CurrencyCalculator: React.FC = () => {
-  const classes = useStyles();
+  const { root, loader, exchangeResults, textFieldStyled } = useStyles();
   const dispatch = useDispatch();
 
   const api = useSelector(optionsSelectors.getApi);
   const naming = useSelector(optionsSelectors.getNaming);
   const favorites = useSelector(optionsSelectors.getFavorites);
-  const currency = useSelector(appSelectors.getCurrency);
+  const currency = useSelector(optionsSelectors.getLatestCurrency);
   const number = useSelector(appSelectors.getNumber);
   const date = useSelector(appSelectors.getDate);
+  const exchangeRates = useSelector(appSelectors.getExchangeRates);
+  const loading = useSelector(appSelectors.getLoading);
+  const error = useSelector(appSelectors.getError);
 
   const [rates, setRates] = useState<IExchangeRate[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
 
   const hanldeChangeNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(appActions.setNumber({ number: event.target.value }));
@@ -38,86 +42,26 @@ export const CurrencyCalculator: React.FC = () => {
   };
 
   const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    dispatch(appActions.setCurrency({ currency: (event.target as HTMLInputElement).value }));
+    const newCurrency = (event.target as HTMLInputElement).value;
+    setOptionsToStorage({ latestCurrency: newCurrency });
+    dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
 
   const handleClearDate = () => dispatch(appActions.setDate({ date: new Date() }));
 
   useEffect(() => {
-    if (!api || !favorites) return;
-    if (!currency) return;
-    setError(false);
-    setLoading(true);
-    setRates([]);
+    dispatch(appActions.getExchangeRatesRequest());
+  }, [dispatch, date, api]);
 
-    Api.getExchangeRates(api, date)
-      .then((loadedRates) => {
-        const favoriteRates = [api, ...favorites]
-          .map((favorite) => loadedRates.find((loaded) => favorite === loaded.abbreviation))
-          .filter((item) => item !== undefined) as IExchangeRate[];
+  useEffect(() => {
+    const newRates = getCalculatedRates(exchangeRates, api, favorites, currency);
+    setRates(newRates ?? []);
+  }, [exchangeRates, currency, api, favorites]);
 
-        if (currency === api) return setRates(favoriteRates);
-        const conversionCurrency = loadedRates.find((item) => item.abbreviation === currency);
-        if (!conversionCurrency) return;
-        const { exchange, scale } = conversionCurrency;
-        const conversionRates = [
-          {
-            abbreviation: Api[api].abbreviation,
-            exchange: 1 / exchange,
-            id: currency,
-            name: Api[api].name,
-            scale: 1 / scale,
-          },
-          ...favoriteRates
-            .filter((item) => item.abbreviation !== currency)
-            .map((item) => ({
-              ...item,
-              exchange: (item.exchange / exchange) * scale,
-              conversion: true,
-            })),
-        ];
-        setRates(conversionRates);
-      })
-      .catch(async () => {
-        setError(true);
-        const { currencys } = await getCacheFromStorage();
-        // eslint-disable-next-line no-debugger
-        debugger;
-        if (!currencys) return;
-        const favoriteRates = [api, ...favorites]
-          .map((favorite) => currencys.find((loaded) => favorite === loaded.abbreviation))
-          .filter((item) => item !== undefined) as IExchangeRate[];
-
-        if (currency === api) return setRates(favoriteRates);
-        const conversionCurrency = currencys.find((item) => item.abbreviation === currency);
-        if (!conversionCurrency) return;
-        const { exchange, scale } = conversionCurrency;
-        const conversionRates = [
-          {
-            abbreviation: Api[api].abbreviation,
-            exchange: 1 / exchange,
-            id: currency,
-            name: Api[api].name,
-            scale: 1 / scale,
-          },
-          ...favoriteRates
-            .filter((item) => item.abbreviation !== currency)
-            .map((item) => ({
-              ...item,
-              exchange: (item.exchange / exchange) * scale,
-              conversion: true,
-            })),
-        ];
-        setRates(conversionRates);
-      })
-      .finally(() => setLoading(false));
-  }, [api, favorites, date, currency]);
-
-  if (api === null || favorites === null || naming === null) return null;
-  if (number === null || currency === null) return null;
+  if (number === null || currency === null || api === null || naming === null) return null;
 
   return (
-    <div className={classes.root}>
+    <div className={root}>
       <DatePicker clearDate={handleClearDate} container={popoverContainer} date={date} onChange={handleChangeDate} />
       <CurrencyRow>
         <ChooseCurrencySelection
@@ -127,31 +71,53 @@ export const CurrencyCalculator: React.FC = () => {
           favorites={favorites}
           handleChooseCurrency={handleChangeCurrency}
         />
-        <TextField
-          className={classes.textFieldStyled}
-          size="small"
-          type="number"
-          value={number ?? 0}
-          onChange={hanldeChangeNumber}
-        />
+        <TextField className={textFieldStyled} type="number" value={number ?? 0} onChange={hanldeChangeNumber} />
       </CurrencyRow>
-      {loading && 'Загрузка курсов...'}
-      {error &&
-        'Ошибка получения курсов валют, попробуйте выбрать другую дату, или повторить запрос позже(по возможности отображается последний кэшированный вариант)'}
-      <div className={classes.exchangeResults}>
+      <div className={exchangeResults}>
         {rates.map((item) => (
           <CurrencyRow key={item.id}>
-            <CurrencyName currency={item} naming={naming} />
+            <CurrencyName disablePortal currency={item} naming={naming} />
             <CurrencyValue currency={item} number={number} />
           </CurrencyRow>
         ))}
       </div>
+      {loading && (
+        <div className={loader}>
+          <CircularProgress />
+        </div>
+      )}
+      {error && (
+        <Tooltip
+          PopperProps={{ disablePortal: true }}
+          placement="left"
+          title={
+            <Typography>
+              Попробуйте выбрать другую дату, <br />
+              или повторить запрос позже <br />
+              <br />
+              При наличии будут показаны <br />
+              кэшированные результаты <br />
+            </Typography>
+          }
+        >
+          <Typography color="error">
+            Ошибка получения курсов валют. <br />
+          </Typography>
+        </Tooltip>
+      )}
     </div>
   );
 };
 
 const useStyles = makeStyles(() =>
   createStyles({
+    loader: {
+      minHeight: 90,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     root: {
       minWidth: 190,
       display: 'flex',
@@ -161,18 +127,8 @@ const useStyles = makeStyles(() =>
     textFieldStyled: {
       '& input': {
         textAlign: 'right',
-        fontSize: 18,
         fontWeight: 700,
         width: 'auto',
-        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-          '-webkit-appearance': 'none',
-          '-moz-appearance': 'none',
-          margin: 0,
-        },
-        '&[type=number]': {
-          '-webkit-appearance': 'textfield',
-          '-moz-appearance': 'textfield',
-        },
       },
     },
     exchangeResults: {

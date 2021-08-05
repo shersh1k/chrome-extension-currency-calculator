@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import SyncProblemIcon from '@material-ui/icons/SyncProblem';
+import clsx from 'clsx';
 
 import { IExchangeRate, NamingTypes } from 'types';
 import { getName } from 'helpers';
@@ -12,22 +14,26 @@ interface IProps {
   naming?: NamingTypes;
   name?: string;
   scale?: boolean;
+  disablePortal?: boolean;
 }
 
-export const CurrencyName: React.FC<IProps> = ({ currency, naming, scale, name }) => {
-  const classes = useStyles();
+export const CurrencyName: React.FC<IProps> = ({ currency, naming, scale, name, disablePortal }) => {
+  const { abbreviation, conversion } = useStyles();
   if (currency && naming)
     return (
-      <Typography
-        className={`${classes.abbreviation}${currency.conversion ? ` ${classes.conversion}` : ''}`}
-        title={currency.conversion ? 'Курс при конвертации через основную валюту банка' : undefined}
+      <Tooltip
+        PopperProps={{ disablePortal }}
+        placement="left"
+        title={currency.conversion ? 'Курс при конвертации через основную валюту банка' : ''}
       >
-        {scale && currency.scale} {getName(currency, naming)}
-        {currency.conversion && <SyncProblemIcon color="secondary" />}:
-      </Typography>
+        <Typography className={clsx(abbreviation, currency.conversion && conversion)}>
+          {scale && currency.scale} {getName(currency, naming)}
+          {currency.conversion && <SyncProblemIcon color="secondary" />}:
+        </Typography>
+      </Tooltip>
     );
 
-  return <Typography className={classes.abbreviation}>{name}</Typography>;
+  return <Typography className={abbreviation}>{name}</Typography>;
 };
 
 const useStyles = makeStyles(() =>
@@ -35,7 +41,6 @@ const useStyles = makeStyles(() =>
     abbreviation: {
       display: 'flex',
       alignItems: 'center',
-      fontSize: 18,
     },
     conversion: {
       cursor: 'help',

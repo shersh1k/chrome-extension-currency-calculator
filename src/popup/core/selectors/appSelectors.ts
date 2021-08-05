@@ -4,9 +4,9 @@ export const getAppState = ({ app }: IState) => app;
 
 export const getTab = ({ app: { tab } }: IState) => tab;
 
-export const getCurrency = ({ app: { currency } }: IState) => currency;
 export const getNumber = ({ app: { number } }: IState) => number;
 export const getDate = ({ app: { date } }: IState) => date;
+export type DateType = ReturnType<typeof getDate>;
 
 export const getExchangeRates = ({ app: { exchangeRates } }: IState) => exchangeRates;
 export const getLoading = ({ app: { loading } }: IState) => loading;

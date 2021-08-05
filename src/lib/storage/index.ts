@@ -8,6 +8,7 @@ export function getOptionsFromStorage(callback: (options: IStorageOptions) => vo
       api: API,
       favorites: FAVORITE,
       naming: NAMING,
+      latestCurrency: API,
     },
     callback as unknown as (items: { [key: string]: unknown }) => void,
   );

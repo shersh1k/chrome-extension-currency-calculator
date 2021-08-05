@@ -4,6 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const srcDir = path.join(__dirname, '..', 'src');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: {
@@ -40,5 +41,6 @@ module.exports = {
       options: {},
     }),
     new ESLintPlugin({ extensions: ['ts', 'tsx'] }),
+    new BundleAnalyzerPlugin(),
   ],
 };

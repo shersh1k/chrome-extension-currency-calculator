@@ -1,4 +1,4 @@
-import { isToday } from 'date-fns';
+import isToday from 'date-fns/isToday';
 import { IAbbreviation, IExchangeRate } from 'types';
 import { getCacheFromStorage, setCacheToStorage } from 'storage';
 
@@ -12,13 +12,17 @@ export abstract class BaseApi {
   abstract load(date: Date): Promise<IExchangeRate[]>;
 
   private async get(date: Date): Promise<IExchangeRate[]> {
-    const cachedCurrencys = await this.getCache(date);
-    if (cachedCurrencys && cachedCurrencys.length) return cachedCurrencys;
+    try {
+      const cachedCurrencys = await this.getCache(date);
+      if (cachedCurrencys && cachedCurrencys.length) return cachedCurrencys;
+      const newCurrencys = await this.load(date);
+      this.setCache(newCurrencys, date);
 
-    const newCurrencys = await this.load(date);
-    this.setCache(newCurrencys, date);
-
-    return newCurrencys;
+      return newCurrencys;
+    } catch (error) {
+      const cachedCurrencys = await this.getCache(new Date());
+      throw new Error(cachedCurrencys ? JSON.stringify(cachedCurrencys) : error);
+    }
   }
 
   private setCache(currencys: IExchangeRate[], date: Date) {

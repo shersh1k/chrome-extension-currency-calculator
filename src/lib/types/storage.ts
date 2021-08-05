@@ -5,6 +5,7 @@ export interface IStorageOptions {
   api: ApiTypes | null;
   favorites: string[] | null;
   naming: NamingTypes | null;
+  latestCurrency: string | null;
 }
 
 export interface IStorageCache {

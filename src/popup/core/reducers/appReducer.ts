@@ -12,7 +12,6 @@ export interface IAppState {
   error: boolean;
 
   number: number | null | string;
-  currency: string | null;
   date: Date;
 }
 
@@ -25,7 +24,6 @@ const defaultState: IAppState = {
   error: false,
 
   number: null,
-  currency: null,
   date: new Date(),
 };
 
@@ -38,10 +36,6 @@ export const appReducer = createReducer<IAppState, ActionType<typeof appActions>
   .handleAction(appActions.setNumber, (state, { payload: { number } }) => ({
     ...state,
     number,
-  }))
-  .handleAction(appActions.setCurrency, (state, { payload: { currency } }) => ({
-    ...state,
-    currency,
   }))
   .handleAction(appActions.setDate, (state, { payload: { date } }) => ({
     ...state,

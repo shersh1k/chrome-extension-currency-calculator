@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-
+import { FixedSizeList } from 'react-window';
 import Box from '@material-ui/core/Box';
-import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -21,6 +18,7 @@ import { API, FAVORITE } from 'consts';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appSelectors } from 'optionsCore';
 
+import { CurrencyRow } from './CurrencyRow';
 import { FavoriteCurrencys } from './FavoriteCurrencys';
 
 export const ApiTab = () => {
@@ -41,16 +39,6 @@ export const ApiTab = () => {
   };
 
   const handleClearSearch = () => setSearchString('');
-
-  const handleFavoriteChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const abbreviationString = event.target.value;
-
-    const newFavorites = checked
-      ? [...favorites, abbreviationString]
-      : favorites.filter((item) => item !== abbreviationString);
-
-    dispatch(optionsActions.setFavorites({ favorites: newFavorites }));
-  };
 
   const handleChangeSearchString = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchString(event.target.value);
@@ -87,7 +75,7 @@ export const ApiTab = () => {
         </Select>
       </FormControl>
       <div style={{ display: 'flex', marginTop: 50, justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1 }}>
+        <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
             <Typography component="span">Выберите валюты предоставляемые API:</Typography>
             <div style={{ width: 250 }}>
@@ -99,24 +87,9 @@ export const ApiTab = () => {
               )}
             </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-            {showedAbbreviations.map((item) => (
-              <Grid item key={item.id} xs={6}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={Boolean(favorites.find((fav) => fav === item.abbreviation))}
-                      color="primary"
-                      size="small"
-                      value={item.abbreviation}
-                      onChange={handleFavoriteChange}
-                    />
-                  }
-                  label={`${item.name} (${item.abbreviation})`}
-                />
-              </Grid>
-            ))}
-          </div>
+          <FixedSizeList height={600} itemCount={showedAbbreviations.length} itemSize={46} width={630}>
+            {CurrencyRow({ items: showedAbbreviations, favorites })}
+          </FixedSizeList>
         </div>
         {allAbbreviations.length > 0 && <FavoriteCurrencys allAbbreviations={allAbbreviations} />}
       </div>

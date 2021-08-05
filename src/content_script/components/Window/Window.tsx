@@ -8,18 +8,18 @@ import { appActions, appSelectors } from 'contentScriptCore';
 
 import { changeReactContainerPosition } from '../../reactContainer';
 
-interface IWindowProps {
-  content?: React.ReactNode;
-}
-
-export const Window: React.FC<IWindowProps> = ({ content, children }) => {
-  const classes = useStyles();
+export const Window: React.FC = ({ children }) => {
+  const { caption, content } = useStyles();
   const dispatch = useDispatch();
 
   const isPinned = useSelector(appSelectors.getIsPinned);
 
   const [isMoving, setIsMoving] = useState(false);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleClose = () => dispatch(appActions.close());
+
+  const handlePinned = () => dispatch(appActions.setIsPinned({ isPinned: !isPinned }));
 
   const handleStartMove = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
@@ -31,8 +31,6 @@ export const Window: React.FC<IWindowProps> = ({ content, children }) => {
   };
 
   const handleEndMove = () => setIsMoving(false);
-  const handleClose = () => dispatch(appActions.close());
-  const handlePinned = () => dispatch(appActions.setIsPinned({ isPinned: !isPinned }));
 
   useEffect(() => {
     const handleEndMoveOnDocument = () => setIsMoving(false);
@@ -55,12 +53,12 @@ export const Window: React.FC<IWindowProps> = ({ content, children }) => {
 
   return (
     <>
-      <div className={classes.caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
-        <OptionsButton />
+      <div className={caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
+        <OptionsButton disablePortal />
         <PinnedButton handlePinned={handlePinned} isPinned={isPinned} />
         <CloseButton handleClose={handleClose} />
       </div>
-      <div className={classes.content}>{content ?? children}</div>
+      <div className={content}>{children}</div>
     </>
   );
 };

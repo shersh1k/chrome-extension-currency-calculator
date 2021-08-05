@@ -1,6 +1,7 @@
 import { applyMiddleware, createStore, Middleware, Store } from 'redux';
 import { logger } from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
+
 import { rootReducer } from './rootReducer';
 import { rootSaga } from './rootSaga';
 import { IState } from './types';

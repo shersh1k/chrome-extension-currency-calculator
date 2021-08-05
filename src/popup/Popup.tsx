@@ -10,12 +10,11 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import TextField from '@material-ui/core/TextField';
 
-import { Api } from 'API';
 import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
 import { IExchangeRate } from 'types';
 import { getOptionsFromStorage, setOptionsToStorage } from 'storage';
-import { formatMoneySpaces, getSelectedNumber } from 'helpers';
+import { formatMoneySpaces, getCalculatedRates, getSelectedNumber } from 'helpers';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'popupCore';
 
@@ -27,9 +26,9 @@ export const Popup: React.FC = () => {
   const api = useSelector(optionsSelectors.getApi);
   const favorites = useSelector(optionsSelectors.getFavorites);
   const naming = useSelector(optionsSelectors.getNaming);
+  const currency = useSelector(optionsSelectors.getLatestCurrency);
   const date = useSelector(appSelectors.getDate);
   const number = useSelector(appSelectors.getNumber);
-  const currency = useSelector(appSelectors.getCurrency);
   const tab = useSelector(appSelectors.getTab);
   const exchangeRates = useSelector(appSelectors.getExchangeRates);
   const exchangeRatesCrypto = useSelector(appSelectors.getExchangeRatesCrypto);
@@ -44,11 +43,17 @@ export const Popup: React.FC = () => {
   };
 
   const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    dispatch(appActions.setCurrency({ currency: (event.target as HTMLInputElement).value }));
+    const newCurrency = (event.target as HTMLInputElement).value;
+    setOptionsToStorage({ latestCurrency: newCurrency });
+    dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
 
   const hanldeChangeNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(appActions.setNumber({ number: event.target.value }));
+  };
+
+  const hanldeSelectNumber = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    event.target.select();
   };
 
   const handleChangeDate = (newDate: Date | null) => {
@@ -68,17 +73,12 @@ export const Popup: React.FC = () => {
 
     getOptionsFromStorage((options) => {
       dispatch(optionsActions.setOptions(options));
-      dispatch(appActions.setCurrency({ currency: options.api }));
     });
 
     chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, (selection) => {
       if (!selection) return;
-
       const newNumber = getSelectedNumber(selection[0]) ?? null;
-      if (newNumber) {
-        dispatch(appActions.setNumber({ number: newNumber }));
-        dispatch(appActions.setTab({ tab: 1 }));
-      }
+      dispatch(appActions.setNumber({ number: newNumber || 1 }));
     });
 
     chrome.storage.onChanged.addListener(storageChangeListener);
@@ -105,32 +105,11 @@ export const Popup: React.FC = () => {
   }, [dispatch, api, favorites, date, currency]);
 
   useEffect(() => {
-    if (!api || !favorites || !currency) return;
     setCurrencys(exchangeRates.filter((item) => favorites.find((favorite) => item.abbreviation === favorite)));
 
-    const favoriteRates = exchangeRates.filter((item) => favorites.find((fav) => item.abbreviation === fav));
-    if (currency === api) return setRates(favoriteRates);
-    const conversionCurrency = exchangeRates.find((item) => item.abbreviation === currency);
-    if (!conversionCurrency) return; // setError(`В выбранном API отсуствует ${currency}`)
-    const { exchange, scale } = conversionCurrency;
-    const conversionRates = [
-      {
-        abbreviation: Api[api].abbreviation,
-        exchange: 1 / exchange,
-        id: currency || api,
-        name: Api[api].name,
-        scale: 1 / scale,
-      },
-      ...favoriteRates
-        .filter((item) => item.abbreviation !== currency)
-        .map((item) => ({
-          ...item,
-          exchange: (item.exchange / exchange) * scale,
-          conversion: true,
-        })),
-    ];
-    setRates(conversionRates);
-  }, [api, currency, exchangeRates, favorites]);
+    const newRates = getCalculatedRates(exchangeRates, api, favorites, currency);
+    setRates(newRates ?? []);
+  }, [exchangeRates, currency, api, favorites]);
 
   if (api === null || favorites === null || isPageTooltip === null || naming === null) return null;
 
@@ -139,22 +118,12 @@ export const Popup: React.FC = () => {
       <main className={classes.main}>
         <AppBar position="sticky">
           <Tabs value={tab} variant="fullWidth" onChange={handleChangeTab}>
-            <Tab label="Курсы валют" />
             <Tab label="Калькулятор" />
+            <Tab label="Курсы валют" />
             <Tab label="Криптовалюты" />
           </Tabs>
         </AppBar>
         <Box hidden={tab !== 0} p={3}>
-          <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
-          {loading && 'Загрузка...'}
-          {currencys.map((item) => (
-            <CurrencyRow key={item.id}>
-              <CurrencyName scale currency={item} naming={naming} />
-              <CurrencyValue value={item.exchange.toFixed(4)} />
-            </CurrencyRow>
-          ))}
-        </Box>
-        <Box hidden={tab !== 1} p={3}>
           <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
           <CurrencyRow>
             <ChooseCurrencySelection
@@ -169,6 +138,7 @@ export const Popup: React.FC = () => {
               type="number"
               value={number ?? ''}
               onChange={hanldeChangeNumber}
+              onFocus={hanldeSelectNumber}
             />
           </CurrencyRow>
           {loading && 'Загрузка...'}
@@ -176,6 +146,16 @@ export const Popup: React.FC = () => {
             <CurrencyRow key={item.id}>
               <CurrencyName currency={item} naming={naming} />
               <CurrencyValue currency={item} number={number} />
+            </CurrencyRow>
+          ))}
+        </Box>
+        <Box hidden={tab !== 1} p={3}>
+          <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
+          {loading && 'Загрузка...'}
+          {currencys.map((item) => (
+            <CurrencyRow key={item.id}>
+              <CurrencyName scale currency={item} naming={naming} />
+              <CurrencyValue value={item.exchange.toFixed(4)} />
             </CurrencyRow>
           ))}
         </Box>
@@ -222,24 +202,13 @@ const useStyles = makeStyles(() =>
     textFieldStyled: {
       '& input': {
         textAlign: 'right',
-        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-          '-webkit-appearance': 'none',
-          '-moz-appearance': 'none',
-          margin: 0,
-        },
-        '&[type=number]': {
-          '-webkit-appearance': 'textfield',
-          '-moz-appearance': 'textfield',
-        },
       },
     },
     abbreviation: {
       color: 'black',
-      fontSize: 18,
     },
     value: {
       paddingLeft: 10,
-      fontSize: 18,
       fontWeight: 700,
       position: 'relative',
       color: 'black',

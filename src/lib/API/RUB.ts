@@ -1,4 +1,7 @@
-import { format, isToday } from 'date-fns';
+// eslint-disable-next-line import/no-duplicates
+import format from 'date-fns/format';
+// eslint-disable-next-line import/no-duplicates
+import isToday from 'date-fns/isToday';
 
 import { IExchangeRate } from 'types';
 

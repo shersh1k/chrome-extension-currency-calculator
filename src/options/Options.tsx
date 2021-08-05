@@ -4,9 +4,7 @@ import { useDispatch } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { getOptionsFromStorage } from 'storage';
-import { getSelectedNumber } from 'helpers';
 import { optionsActions } from 'commonCore';
-import { appActions } from 'optionsCore';
 
 import { Header, MainTab, CommonTab, ApiTab, AboutTab } from './components';
 
@@ -17,16 +15,6 @@ export const Options = () => {
   useEffect(() => {
     getOptionsFromStorage((options) => {
       dispatch(optionsActions.setOptions(options));
-    });
-
-    chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, (selection) => {
-      if (!selection) return;
-
-      const number = getSelectedNumber(selection[0]) ?? null;
-      if (number) {
-        dispatch(appActions.setNumber({ number }));
-        dispatch(appActions.setTab({ tab: 1 }));
-      }
     });
 
     chrome.storage.onChanged.addListener(storageChangeListener);

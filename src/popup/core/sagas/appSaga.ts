@@ -2,17 +2,17 @@ import { SagaIterator } from 'redux-saga';
 import { call, put, SagaReturnType, select, takeLatest } from 'redux-saga/effects';
 
 import { Api } from 'API';
-import { IExchangeRateCrypto } from 'types';
-import { optionsSelectors } from 'commonCore';
+import { optionsSelectors, ApiType } from 'commonCore';
 
 import { appActions } from '../actions';
-import { appSelectors } from '../selectors';
+import { appSelectors, DateType } from '../selectors';
 
 type ExchangeRates = SagaReturnType<typeof Api.getExchangeRates>;
 function* getExchangeRates(): SagaIterator {
   try {
-    const api = yield select(optionsSelectors.getApi);
-    const date = yield select(appSelectors.getDate);
+    const api: ApiType = yield select(optionsSelectors.getApi);
+    if (!api) throw new Error('Нет выбранного API');
+    const date: DateType = yield select(appSelectors.getDate);
 
     const exchangeRates: ExchangeRates = yield call(() => Api.getExchangeRates(api, date));
 
@@ -23,18 +23,10 @@ function* getExchangeRates(): SagaIterator {
   }
 }
 
+type ExchangeRatesCrypto = SagaReturnType<typeof Api.getExchangeRatesCrypto>;
 function* getExchangeRatesCrypto(): SagaIterator {
   try {
-    const { data } = yield call(() => fetch('https://api.coincap.io/v2/assets').then((res) => res.json()));
-    const exchangeRatesCrypto: IExchangeRateCrypto[] = data
-      .slice(0, 10)
-      .map((item: { symbol: string; id: string; name: string; priceUsd: number; rank: number }) => ({
-        abbreviation: item.symbol,
-        id: item.id,
-        name: item.name,
-        priceUsd: item.priceUsd,
-        rank: item.rank,
-      }));
+    const exchangeRatesCrypto: ExchangeRatesCrypto = yield call(() => Api.getExchangeRatesCrypto());
 
     yield put(appActions.getExchangeRatesCryptoSuccess());
     yield put(appActions.putExchangeRatesCryptoToStore({ exchangeRatesCrypto }));

@@ -28,7 +28,6 @@ const useStyles = makeStyles(() =>
   createStyles({
     value: {
       paddingLeft: 10,
-      fontSize: 18,
       fontWeight: 700,
     },
   }),

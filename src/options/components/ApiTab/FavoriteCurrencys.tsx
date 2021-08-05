@@ -18,7 +18,8 @@ interface IProps {
 
 export const FavoriteCurrencys: React.FC<IProps> = ({ allAbbreviations }) => {
   const dispatch = useDispatch();
-  const { list, draggableList, item, itemSpan, draggableItem } = useStyles();
+
+  const { favoriteCurrencys, list, draggableList, item, itemSpan, draggableItem } = useStyles();
 
   const favorites = useSelector(optionsSelectors.getFavorites);
   const [favExt, setFavExt] = useState<IAbbreviation[]>([]);
@@ -45,37 +46,39 @@ export const FavoriteCurrencys: React.FC<IProps> = ({ allAbbreviations }) => {
   }, [dispatch, favorites, allAbbreviations]);
 
   return (
-    <div style={{ position: 'sticky', top: 100 }}>
+    <div>
       <Typography align="center">Порядок показа валют:</Typography>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
-          {(dropProvided, dropSnapshot) => (
-            <div className={clsx(list, dropSnapshot.isDraggingOver && draggableList)} ref={dropProvided.innerRef}>
-              {favExt.map((favorite, index) => (
-                <Draggable draggableId={String(favorite.id)} index={index} key={favorite.id}>
-                  {(dragProvided, dragSnapshot) => (
-                    <div
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                      {...dragProvided.dragHandleProps}
-                      className={clsx(item, dragSnapshot.isDragging && draggableItem)}
-                    >
-                      {index + 1}. {favorite.name}({favorite.abbreviation})
-                      <span className={itemSpan}>
-                        <IconButton color="secondary" size="small" onClick={() => handleDelete(favorite)}>
-                          <ClearIcon />
-                        </IconButton>
-                        <DragIndicatorIcon />
-                      </span>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {dropProvided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <div className={favoriteCurrencys}>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(dropProvided, dropSnapshot) => (
+              <div className={clsx(list, dropSnapshot.isDraggingOver && draggableList)} ref={dropProvided.innerRef}>
+                {favExt.map((favorite, index) => (
+                  <Draggable draggableId={String(favorite.id)} index={index} key={favorite.id}>
+                    {(dragProvided, dragSnapshot) => (
+                      <div
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                        {...dragProvided.dragHandleProps}
+                        className={clsx(item, dragSnapshot.isDragging && draggableItem)}
+                      >
+                        {favorite.name}({favorite.abbreviation})
+                        <span className={itemSpan}>
+                          <IconButton color="secondary" size="small" onClick={() => handleDelete(favorite)}>
+                            <ClearIcon />
+                          </IconButton>
+                          <DragIndicatorIcon />
+                        </span>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {dropProvided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     </div>
   );
 };
@@ -90,17 +93,19 @@ const reorder = (list: IAbbreviation[], startIndex: number, endIndex: number) =>
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    favoriteCurrencys: {
+      width: 320,
+      height: 600,
+      overflowY: 'auto',
+    },
+
     list: {
-      minHeight: 300,
       borderRadius: 4,
       padding: 4,
       marginTop: 5,
-      border: `2px solid ${theme.palette.divider}`,
       transition: 'all 0.5s',
     },
-    draggableList: {
-      border: `2px solid ${theme.palette.primary.main}`,
-    },
+    draggableList: {},
 
     item: {
       userSelect: 'none',
@@ -110,11 +115,10 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
-      border: `2px solid ${theme.palette.divider}`,
       transition: 'background 0.5s',
+      border: `2px solid ${theme.palette.divider}`,
     },
     draggableItem: {
-      border: `2px solid ${theme.palette.divider}`,
       background: theme.palette.primary.main,
     },
     itemSpan: {
