@@ -28,3 +28,5 @@ npm run watch
 
 Load `dist` directory
 
+
+  https://chrome.google.com/webstore/detail/currency-calculator/pbhlpimiabffgiljfnopihjknkoemifb
