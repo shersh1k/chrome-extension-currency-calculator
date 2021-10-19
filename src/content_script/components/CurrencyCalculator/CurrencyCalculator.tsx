@@ -47,6 +47,12 @@ export const CurrencyCalculator: React.FC = () => {
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
 
+  const handleClickCurrency = (abbr?: string) => {
+    if (!abbr) return;
+    setOptionsToStorage({ latestCurrency: abbr });
+    dispatch(optionsActions.setLatestCurrency({ latestCurrency: abbr }));
+  };
+
   const handleClearDate = () => dispatch(appActions.setDate({ date: new Date() }));
 
   useEffect(() => {
@@ -71,12 +77,13 @@ export const CurrencyCalculator: React.FC = () => {
           favorites={favorites}
           handleChooseCurrency={handleChangeCurrency}
         />
+        {/* value={new Intl.NumberFormat('ru-RU').format(Number(number) ?? 0)} */}
         <TextField className={textFieldStyled} type="number" value={number ?? 0} onChange={hanldeChangeNumber} />
       </CurrencyRow>
       <div className={exchangeResults}>
         {rates.map((item) => (
           <CurrencyRow key={item.id}>
-            <CurrencyName disablePortal currency={item} naming={naming} />
+            <CurrencyName disablePortal currency={item} naming={naming} onClick={handleClickCurrency} />
             <CurrencyValue currency={item} number={number} />
           </CurrencyRow>
         ))}

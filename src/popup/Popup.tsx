@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Tab from '@material-ui/core/Tab';
@@ -46,6 +47,12 @@ export const Popup: React.FC = () => {
     const newCurrency = (event.target as HTMLInputElement).value;
     setOptionsToStorage({ latestCurrency: newCurrency });
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
+  };
+
+  const handleClickCurrency = (abbr?: string) => {
+    if (!abbr) return;
+    setOptionsToStorage({ latestCurrency: abbr });
+    dispatch(optionsActions.setLatestCurrency({ latestCurrency: abbr }));
   };
 
   const hanldeChangeNumber = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,9 +107,8 @@ export const Popup: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!api || !favorites || !currency) return;
     dispatch(appActions.getExchangeRatesRequest());
-  }, [dispatch, api, favorites, date, currency]);
+  }, [dispatch, api, date]);
 
   useEffect(() => {
     setCurrencys(exchangeRates.filter((item) => favorites.find((favorite) => item.abbreviation === favorite)));
@@ -141,17 +147,25 @@ export const Popup: React.FC = () => {
               onFocus={hanldeSelectNumber}
             />
           </CurrencyRow>
-          {loading && 'Загрузка...'}
           {rates.map((item) => (
             <CurrencyRow key={item.id}>
-              <CurrencyName currency={item} naming={naming} />
+              <CurrencyName currency={item} naming={naming} onClick={handleClickCurrency} />
               <CurrencyValue currency={item} number={number} />
             </CurrencyRow>
           ))}
+          {loading && (
+            <div className={classes.loader}>
+              <CircularProgress />
+            </div>
+          )}
         </Box>
         <Box hidden={tab !== 1} p={3}>
           <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
-          {loading && 'Загрузка...'}
+          {loading && (
+            <div className={classes.loader}>
+              <CircularProgress />
+            </div>
+          )}
           {currencys.map((item) => (
             <CurrencyRow key={item.id}>
               <CurrencyName scale currency={item} naming={naming} />
@@ -160,7 +174,11 @@ export const Popup: React.FC = () => {
           ))}
         </Box>
         <Box hidden={tab !== 2} p={3}>
-          {loading && 'Загрузка...'}
+          {loading && (
+            <div className={classes.loader}>
+              <CircularProgress />
+            </div>
+          )}
           {exchangeRatesCrypto.map((item) => (
             <CurrencyRow key={item.id}>
               <CurrencyName name={`${item.rank}. ${item.name}:`} />
@@ -222,6 +240,13 @@ const useStyles = makeStyles(() =>
       justifyContent: 'space-between',
       alignItems: 'center',
       borderTop: '1px solid grey',
+    },
+    loader: {
+      minHeight: 90,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   }),
 );

@@ -28,8 +28,11 @@ function* getExchangeRatesCrypto(): SagaIterator {
   try {
     const exchangeRatesCrypto: ExchangeRatesCrypto = yield call(() => Api.getExchangeRatesCrypto());
 
-    yield put(appActions.getExchangeRatesCryptoSuccess());
-    yield put(appActions.putExchangeRatesCryptoToStore({ exchangeRatesCrypto }));
+    if (exchangeRatesCrypto === 429) yield put(appActions.getExchangeRatesCryptoRequest());
+    else {
+      yield put(appActions.getExchangeRatesCryptoSuccess());
+      yield put(appActions.putExchangeRatesCryptoToStore({ exchangeRatesCrypto }));
+    }
   } catch (error) {
     yield put(appActions.getExchangeRatesCryptoFailure());
   }

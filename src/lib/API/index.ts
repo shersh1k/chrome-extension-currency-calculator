@@ -25,8 +25,14 @@ class ApiService {
   private cryptoUrl = 'https://api.coincap.io/v2/assets';
 
   public async getExchangeRatesCrypto() {
-    const { data } = await fetch(this.cryptoUrl).then((res) => res.json());
-    const exchangeRatesCrypto: IExchangeRateCrypto[] = data
+    const result = await fetch(this.cryptoUrl).then((res) => {
+      if (res.status === 429) return 429;
+
+      return res.json();
+    });
+    if (result === 429) return 429;
+
+    const exchangeRatesCrypto: IExchangeRateCrypto[] = result.data
       .slice(0, this.cryptoCount)
       .map((item: { symbol: string; id: string; name: string; priceUsd: number; rank: number }) => ({
         abbreviation: item.symbol,
