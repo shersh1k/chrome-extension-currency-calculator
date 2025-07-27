@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { Provider } from 'react-redux';
 
@@ -8,11 +8,11 @@ import { store } from 'optionsCore';
 
 import { Options } from './Options';
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root')!);
+root.render(
   <Provider store={store}>
     <Theme>
       <Options />
     </Theme>
-  </Provider>,
-  document.getElementById('root'),
+  </Provider>
 );

@@ -23,7 +23,7 @@ function* getExchangeRates(): SagaIterator {
     yield put(appActions.getExchangeRatesFailure());
 
     // try to get cached results
-    const cached: IExchangeRate[] = JSON.parse(error?.message);
+    const cached: IExchangeRate[] = JSON.parse(error instanceof Error ? error?.message : '');
     yield put(appActions.putExchangeRatesToStore({ exchangeRates: cached }));
   }
 }

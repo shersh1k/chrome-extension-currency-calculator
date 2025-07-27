@@ -1,10 +1,10 @@
 import React from 'react';
 
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import SettingsIcon from '@material-ui/icons/Settings';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import SettingsIcon from '@mui/icons-material/Settings';
 
-const OPTIONS_URL = chrome.extension.getURL('options.html');
+const OPTIONS_URL = chrome.runtime.getURL('options.html');
 
 interface IProps {
   disablePortal?: boolean;

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@mui/styles';
+import AppBar from '@mui/material/AppBar';
+import Button from '@mui/material/Button';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 import { IS_PAGE_TOOLTIP, API, FAVORITE, NAMING } from 'consts';
 import { setCacheToStorage, setOptionsToStorage } from 'storage';
@@ -80,8 +80,7 @@ export const Header = () => {
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
+const useStyles = makeStyles(() => ({
     save: {
       flex: 1,
       display: 'flex',

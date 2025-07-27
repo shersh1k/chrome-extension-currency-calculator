@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import Badge from '@material-ui/core/Badge';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@mui/styles';
+import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import clsx from 'clsx';
 
 import { IExchangeRate, NamingTypes } from 'types';
@@ -50,8 +50,7 @@ export const CurrencyName: React.FC<IProps> = ({ onClick, currency, naming, scal
   return <Typography className={abbreviation}>{name}</Typography>;
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
+const useStyles = makeStyles(() => ({
     abbreviation: {
       display: 'flex',
       alignItems: 'center',

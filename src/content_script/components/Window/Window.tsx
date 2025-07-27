@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
 import { CloseButton, OptionsButton, PinnedButton } from 'atoms';
 import { appActions, appSelectors } from 'contentScriptCore';
 
 import { changeReactContainerPosition } from '../../reactContainer';
 
-export const Window: React.FC = ({ children }) => {
+export const Window: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const { caption, content } = useStyles();
   const dispatch = useDispatch();
 
@@ -63,8 +63,7 @@ export const Window: React.FC = ({ children }) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles((theme: any) => ({
     caption: {
       display: 'flex',
       alignItems: 'center',

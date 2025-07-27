@@ -1,5 +1,5 @@
-import { IStorageCache, IStorageOptions } from 'types';
-import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from 'consts';
+import { IStorageCache, IStorageOptions } from '../types/storage';
+import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from '../constants';
 
 export function getOptionsFromStorage(callback: (options: IStorageOptions) => void): void {
   chrome.storage.sync.get(
@@ -15,7 +15,11 @@ export function getOptionsFromStorage(callback: (options: IStorageOptions) => vo
 }
 
 export function setOptionsToStorage(options: Partial<IStorageOptions>, callback?: () => void): void {
-  chrome.storage.sync.set(options, callback);
+  if (callback) {
+    chrome.storage.sync.set(options, callback);
+  } else {
+    chrome.storage.sync.set(options);
+  }
 }
 
 export function getCacheFromStorage(): Promise<IStorageCache> {
@@ -27,5 +31,9 @@ export function getCacheFromStorage(): Promise<IStorageCache> {
 }
 
 export function setCacheToStorage(cache: Partial<IStorageCache>, callback?: () => void): void {
-  chrome.storage.local.set(cache, callback);
+  if (callback) {
+    chrome.storage.local.set(cache, callback);
+  } else {
+    chrome.storage.local.set(cache);
+  }
 }

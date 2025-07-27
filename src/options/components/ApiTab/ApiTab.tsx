@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { FixedSizeList } from 'react-window';
-import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import IconButton from '@material-ui/core/IconButton';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import ClearIcon from '@material-ui/icons/Clear';
+import Box from '@mui/material/Box';
+import { SelectChangeEvent } from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import { Api } from 'API';
 import { ApiTypes, IAbbreviation } from 'types';
@@ -32,7 +33,7 @@ export const ApiTab = () => {
   const [showedAbbreviations, setShowedAbbreviations] = useState<IAbbreviation[]>([]);
   const [searchString, setSearchString] = useState('');
 
-  const handleApiChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
+  const handleApiChange = (event: SelectChangeEvent<string>) => {
     const newApi = event.target.value as ApiTypes;
     dispatch(optionsActions.setApi({ api: newApi }));
     dispatch(optionsActions.setFavorites({ favorites: FAVORITE }));

@@ -1,7 +1,7 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { StylesProvider, jssPreset } from '@material-ui/styles';
+import { StylesProvider, jssPreset } from '@mui/styles';
 import { create } from 'jss';
 
 import { Theme } from 'theme';
@@ -22,7 +22,8 @@ const jss = create({
   insertionPoint: stylesRoot,
 });
 
-ReactDOM.render(
+const root = createRoot(reactMountPoint);
+root.render(
   <React.StrictMode>
     <Provider store={store}>
       <StylesProvider jss={jss}>
@@ -31,8 +32,7 @@ ReactDOM.render(
         </Theme>
       </StylesProvider>
     </Provider>
-  </React.StrictMode>,
-  reactMountPoint,
+  </React.StrictMode>
 );
 
 export function appendReactContainer({ x, y }: IPosition) {

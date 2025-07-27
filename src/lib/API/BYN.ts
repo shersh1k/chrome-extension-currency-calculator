@@ -1,7 +1,6 @@
 /* eslint-disable import/no-duplicates */
 /* eslint-disable camelcase */
-import format from 'date-fns/format';
-import isToday from 'date-fns/isToday';
+import { format, isToday } from 'date-fns';
 import qs from 'qs';
 import { IExchangeRate } from 'types';
 

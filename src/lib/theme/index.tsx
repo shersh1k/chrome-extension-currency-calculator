@@ -1,6 +1,5 @@
 import React from 'react';
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 
 const PRIMARY_COLOR = '#038f8f';
 const SECONDARY_COLOR = '#bd322f';
@@ -17,11 +16,11 @@ export const theme = createTheme({
     secondary: {
       main: SECONDARY_COLOR,
     },
-    type: 'dark',
+    mode: 'dark',
   },
-  overrides: {
+  components: {
     MuiCssBaseline: {
-      '@global': {
+      styleOverrides: {
         body: {
           backgroundColor: '#424242',
           color: 'white',
@@ -63,7 +62,7 @@ export const theme = createTheme({
   },
 });
 
-export const Theme: React.FC = ({ children }) => {
+export const Theme: React.FC<{children: React.ReactNode}> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

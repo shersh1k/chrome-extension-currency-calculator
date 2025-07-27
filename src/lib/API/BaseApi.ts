@@ -1,4 +1,4 @@
-import isToday from 'date-fns/isToday';
+import { isToday } from 'date-fns';
 import { IAbbreviation, IExchangeRate } from 'types';
 import { getCacheFromStorage, setCacheToStorage } from 'storage';
 
@@ -21,7 +21,17 @@ export abstract class BaseApi {
       return newCurrencys;
     } catch (error) {
       const cachedCurrencys = await this.getCache(new Date());
-      throw new Error(cachedCurrencys ? JSON.stringify(cachedCurrencys) : error);
+      let message: string;
+      if (cachedCurrencys) {
+        message = JSON.stringify(cachedCurrencys);
+      } else if (typeof error === 'string') {
+        message = error;
+      } else if (error instanceof Error) {
+        message = error.message;
+      } else {
+        message = JSON.stringify(error);
+      }
+      throw new Error(message);
     }
   }
 

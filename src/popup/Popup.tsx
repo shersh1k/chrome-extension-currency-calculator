@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import TextField from '@material-ui/core/TextField';
+import { makeStyles } from '@mui/styles';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
 
 import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
@@ -30,6 +30,8 @@ export const Popup: React.FC = () => {
   const currency = useSelector(optionsSelectors.getLatestCurrency);
   const date = useSelector(appSelectors.getDate);
   const number = useSelector(appSelectors.getNumber);
+  console.log({ number });
+
   const tab = useSelector(appSelectors.getTab);
   const exchangeRates = useSelector(appSelectors.getExchangeRates);
   const exchangeRatesCrypto = useSelector(appSelectors.getExchangeRatesCrypto);
@@ -43,8 +45,8 @@ export const Popup: React.FC = () => {
     dispatch(appActions.setTab({ tab: newValue }));
   };
 
-  const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    const newCurrency = (event.target as HTMLInputElement).value;
+  const handleChangeCurrency = (event: import('@mui/material/Select').SelectChangeEvent<string>) => {
+    const newCurrency = event.target.value;
     setOptionsToStorage({ latestCurrency: newCurrency });
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
@@ -81,12 +83,28 @@ export const Popup: React.FC = () => {
     getOptionsFromStorage((options) => {
       dispatch(optionsActions.setOptions(options));
     });
+    console.log({ 'chrome.scripting': chrome.scripting, 'chrome.tabs': chrome.tabs });
 
-    chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, (selection) => {
-      if (!selection) return;
-      const newNumber = getSelectedNumber(selection[0]) ?? null;
-      dispatch(appActions.setNumber({ number: newNumber || 1 }));
-    });
+    if (chrome.scripting && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        console.log({ tabs });
+
+        if (!tabs[0]?.id) return;
+        chrome.scripting.executeScript(
+          {
+            target: { tabId: tabs[0].id },
+            func: () => window.getSelection()?.toString() || '',
+          },
+          (results) => {
+            console.log({ results });
+
+            if (!results || !results[0]?.result) return;
+            const newNumber = getSelectedNumber(results[0].result) ?? null;
+            dispatch(appActions.setNumber({ number: newNumber || 1 }));
+          },
+        );
+      });
+    }
 
     chrome.storage.onChanged.addListener(storageChangeListener);
 
@@ -198,55 +216,53 @@ export const Popup: React.FC = () => {
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      width: 400,
-      minHeight: 500,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+const useStyles = makeStyles(() => ({
+  root: {
+    width: 400,
+    minHeight: 500,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  main: {
+    flex: 1,
+    width: '100%',
+  },
+  row: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textFieldStyled: {
+    '& input': {
+      textAlign: 'right',
     },
-    main: {
-      flex: 1,
-      width: '100%',
-    },
-    row: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    textFieldStyled: {
-      '& input': {
-        textAlign: 'right',
-      },
-    },
-    abbreviation: {
-      color: 'black',
-    },
-    value: {
-      paddingLeft: 10,
-      fontWeight: 700,
-      position: 'relative',
-      color: 'black',
-    },
-    exchangeResults: {
-      paddingTop: 10,
-    },
-    footer: {
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderTop: '1px solid grey',
-    },
-    loader: {
-      minHeight: 90,
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  }),
-);
+  },
+  abbreviation: {
+    color: 'black',
+  },
+  value: {
+    paddingLeft: 10,
+    fontWeight: 700,
+    position: 'relative',
+    color: 'black',
+  },
+  exchangeResults: {
+    paddingTop: 10,
+  },
+  footer: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: '1px solid grey',
+  },
+  loader: {
+    minHeight: 90,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+}));

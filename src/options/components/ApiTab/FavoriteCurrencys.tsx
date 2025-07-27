@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import ClearIcon from '@material-ui/icons/Clear';
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
+import { makeStyles } from '@mui/styles';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import ClearIcon from '@mui/icons-material/Clear';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import clsx from 'clsx';
 
 import { IAbbreviation } from 'types';
@@ -91,39 +91,37 @@ const reorder = (list: IAbbreviation[], startIndex: number, endIndex: number) =>
   return result;
 };
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    favoriteCurrencys: {
-      width: 320,
-      height: 600,
-      overflowY: 'auto',
-    },
+const useStyles = makeStyles((theme: any) => ({
+  favoriteCurrencys: {
+    width: 320,
+    height: 600,
+    overflowY: 'auto',
+  },
 
-    list: {
-      borderRadius: 4,
-      padding: 4,
-      marginTop: 5,
-      transition: 'all 0.5s',
-    },
-    draggableList: {},
+  list: {
+    borderRadius: 4,
+    padding: 4,
+    marginTop: 5,
+    transition: 'all 0.5s',
+  },
+  draggableList: {},
 
-    item: {
-      userSelect: 'none',
-      padding: 4 * 2,
-      marginBottom: 4,
-      width: 300,
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      transition: 'background 0.5s',
-      border: `2px solid ${theme.palette.divider}`,
-    },
-    draggableItem: {
-      background: theme.palette.primary.main,
-    },
-    itemSpan: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-  }),
-);
+  item: {
+    userSelect: 'none',
+    padding: 4 * 2,
+    marginBottom: 4,
+    width: 300,
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    transition: 'background 0.5s',
+    border: `2px solid ${theme.palette.divider}`,
+  },
+  draggableItem: {
+    background: theme.palette.primary.main,
+  },
+  itemSpan: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+}));

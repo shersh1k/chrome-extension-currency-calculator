@@ -1,8 +1,8 @@
 import React from 'react';
 
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import EjectIcon from '@material-ui/icons/Eject';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import EjectIcon from '@mui/icons-material/Eject';
 
 interface IProps {
   isPinned: boolean;

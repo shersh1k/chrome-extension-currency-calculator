@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@mui/styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import { CurrencyName, CurrencyRow, CurrencyValue } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
@@ -16,6 +16,7 @@ import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'contentScriptCore';
 
 import { popoverContainer } from '../../reactContainer';
+import { SelectChangeEvent } from '@mui/material';
 
 export const CurrencyCalculator: React.FC = () => {
   const { root, loader, exchangeResults, textFieldStyled } = useStyles();
@@ -41,8 +42,8 @@ export const CurrencyCalculator: React.FC = () => {
     dispatch(appActions.setDate({ date: newDate }));
   };
 
-  const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    const newCurrency = (event.target as HTMLInputElement).value;
+  const handleChangeCurrency = (event: SelectChangeEvent<string>) => {
+    const newCurrency = event.target.value;
     setOptionsToStorage({ latestCurrency: newCurrency });
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
@@ -116,30 +117,28 @@ export const CurrencyCalculator: React.FC = () => {
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    loader: {
-      minHeight: 90,
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+const useStyles = makeStyles(() => ({
+  loader: {
+    minHeight: 90,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  root: {
+    minWidth: 190,
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+  },
+  textFieldStyled: {
+    '& input': {
+      textAlign: 'right',
+      fontWeight: 700,
+      width: 'auto',
     },
-    root: {
-      minWidth: 190,
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-    },
-    textFieldStyled: {
-      '& input': {
-        textAlign: 'right',
-        fontWeight: 700,
-        width: 'auto',
-      },
-    },
-    exchangeResults: {
-      paddingTop: 10,
-    },
-  }),
-);
+  },
+  exchangeResults: {
+    paddingTop: 10,
+  },
+}));

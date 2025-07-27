@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
 import { getOptionsFromStorage } from 'storage';
 import { optionsActions } from 'commonCore';
@@ -46,8 +46,7 @@ export const Options = () => {
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
+const useStyles = makeStyles(() => ({
     root: {
       width: 1024,
       marginLeft: 'calc(50vw - 512px)',

@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import { makeStyles } from '@mui/styles';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
 
 import { ApiTypes } from 'types';
 
@@ -10,8 +11,8 @@ interface IProps {
   api: ApiTypes;
   choosedCurrency: string;
   favorites: string[];
-  handleChooseCurrency: (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => void;
-  container?: React.ReactInstance | (() => React.ReactInstance | null) | null | undefined;
+  handleChooseCurrency: (event: SelectChangeEvent<string>) => void;
+  container?: Element | (() => Element | null) | null | undefined;
 }
 
 export const ChooseCurrencySelection: React.FC<IProps> = ({
@@ -39,8 +40,7 @@ export const ChooseCurrencySelection: React.FC<IProps> = ({
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
+const useStyles = makeStyles(() => ({
     selectStyled: {
       '&.MuiInput-underline.Mui-focused:after': {
         borderBottom: 'none',
