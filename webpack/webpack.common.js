@@ -43,4 +43,7 @@ module.exports = {
     new ESLintPlugin({ extensions: ['ts', 'tsx'] }),
     new BundleAnalyzerPlugin(),
   ],
+   alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
 };

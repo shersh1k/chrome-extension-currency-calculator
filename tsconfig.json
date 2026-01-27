@@ -10,21 +10,20 @@
     "noEmitOnError": true,
     "jsx": "react",
     "typeRoots": ["node_modules/@types"],
-    "baseUrl": "./",
     "paths": {
-      "src": ["src/"],
-      "API": ["src/lib/API"],
-      "types": ["src/lib/types"],
-      "consts": ["src/lib/constants"],
-      "storage": ["src/lib/storage"],
-      "helpers": ["src/lib/helpers"],
-      "atoms": ["src/lib/components/atoms"],
-      "molecules": ["src/lib/components/molecules"],
-      "theme": ["src/lib/theme"],
-      "commonCore": ["src/lib/commonCore"],
-      "contentScriptCore": ["src/content_script/core"],
-      "optionsCore": ["src/options/core"],
-      "popupCore": ["src/popup/core"]
+      "src": ["./src/"],
+      "API": ["./src/lib/API"],
+      "types": ["./src/lib/types"],
+      "consts": ["./src/lib/constants"],
+      "storage": ["./src/lib/storage"],
+      "helpers": ["./src/lib/helpers"],
+      "atoms": ["./src/lib/components/atoms"],
+      "molecules": ["./src/lib/components/molecules"],
+      "theme": ["./src/lib/theme"],
+      "commonCore": ["./src/lib/commonCore"],
+      "contentScriptCore": ["./src/content_script/core"],
+      "optionsCore": ["./src/options/core"],
+      "popupCore": ["./src/popup/core"]
     }
   }
 }

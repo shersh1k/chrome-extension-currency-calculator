@@ -104,4 +104,9 @@ module.exports = {
     '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/no-use-before-define': 0,
   },
+  globalIgnores:[
+    'webpack/', 
+    'dist/', 
+    'public/'
+  ]
 };
