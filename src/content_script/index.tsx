@@ -1,4 +1,4 @@
-import { getOptionsFromStorage } from 'storage';
+import { getOptionsFromStorage, StorageOptionsChanges } from 'storage';
 import { getSelectedNumber } from 'helpers';
 import { optionsActions } from 'commonCore';
 import { store, appActions } from 'contentScriptCore';
@@ -38,7 +38,8 @@ function storeListener() {
   else removeReactContainer();
 }
 
-function storageChangeListener(options: { [key: string]: chrome.storage.StorageChange }) {
+function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
+  const options = changes as StorageOptionsChanges;
   store.dispatch(
     optionsActions.setOptions({
       isPageTooltip: options.isPageTooltip?.newValue,

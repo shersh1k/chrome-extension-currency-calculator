@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Box from '@mui/material/Box';
 
 import { CloseButton, OptionsButton, PinnedButton } from 'atoms';
 import { appActions, appSelectors } from 'contentScriptCore';
 
 import { changeReactContainerPosition } from '../../reactContainer';
 
-export const Window: React.FC = ({ children }) => {
-  const { caption, content } = useStyles();
+export const Window: React.FC<React.PropsWithChildren> = ({ children }) => {
   const dispatch = useDispatch();
 
   const isPinned = useSelector(appSelectors.getIsPinned);
@@ -53,27 +52,23 @@ export const Window: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className={caption} onMouseDown={handleStartMove} onMouseUp={handleEndMove}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: 1,
+          borderColor: 'divider',
+          cursor: 'move',
+        }}
+        onMouseDown={handleStartMove}
+        onMouseUp={handleEndMove}
+      >
         <OptionsButton disablePortal />
         <PinnedButton handlePinned={handlePinned} isPinned={isPinned} />
         <CloseButton handleClose={handleClose} />
-      </div>
-      <div className={content}>{children}</div>
+      </Box>
+      <Box sx={{ padding: '10px' }}>{children}</Box>
     </>
   );
 };
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    caption: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      cursor: 'move',
-    },
-    content: {
-      padding: 10,
-    },
-  }),
-);

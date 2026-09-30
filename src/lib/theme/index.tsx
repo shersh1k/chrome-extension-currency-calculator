@@ -1,6 +1,5 @@
-import React from 'react';
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 const PRIMARY_COLOR = '#038f8f';
 const SECONDARY_COLOR = '#bd322f';
@@ -11,17 +10,21 @@ export const theme = createTheme({
     ...{ pxToRem: (size: number) => `${size}px` }, // hack for disable rem
   },
   palette: {
+    mode: 'dark',
     primary: {
       main: PRIMARY_COLOR,
     },
     secondary: {
       main: SECONDARY_COLOR,
     },
-    type: 'dark',
+    background: {
+      default: '#303030',
+      paper: '#424242',
+    },
   },
-  overrides: {
+  components: {
     MuiCssBaseline: {
-      '@global': {
+      styleOverrides: {
         body: {
           backgroundColor: '#424242',
           color: 'white',
@@ -35,13 +38,13 @@ export const theme = createTheme({
         },
         input: {
           '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-            '-webkit-appearance': 'none',
-            '-moz-appearance': 'none',
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
             margin: 0,
           },
           '&[type=number]': {
-            '-webkit-appearance': 'textfield',
-            '-moz-appearance': 'textfield',
+            WebkitAppearance: 'textfield',
+            MozAppearance: 'textfield',
           },
         },
         '*': {
@@ -50,12 +53,11 @@ export const theme = createTheme({
           },
           '&::-webkit-scrollbar-track': {
             borderRadius: 10,
-            '-webkit-box-shadow': `inset 0 0 6px ${PRIMARY_COLOR}`,
+            WebkitBoxShadow: `inset 0 0 6px ${PRIMARY_COLOR}`,
           },
           '&::-webkit-scrollbar-thumb': {
             borderRadius: 10,
             backgroundColor: `${SECONDARY_COLOR}C0`,
-            // '-webkit-box-shadow': `inset 0 0 6px ${SECONDARY_COLOR}`,
           },
         },
       },
@@ -63,7 +65,7 @@ export const theme = createTheme({
   },
 });
 
-export const Theme: React.FC = ({ children }) => {
+export const Theme: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -1,6 +1,18 @@
-import isToday from 'date-fns/isToday';
+import { isToday } from 'date-fns';
+
 import { IAbbreviation, IExchangeRate } from 'types';
 import { getCacheFromStorage, setCacheToStorage } from 'storage';
+
+// thrown when exchange rates can't be loaded, carries today's cached rates if there are any
+export class ExchangeRatesError extends Error {
+  constructor(
+    public cached: IExchangeRate[] | null,
+    options?: ErrorOptions,
+  ) {
+    super('Failed to load exchange rates', options);
+    this.name = 'ExchangeRatesError';
+  }
+}
 
 export abstract class BaseApi {
   abstract url: string;
@@ -21,7 +33,7 @@ export abstract class BaseApi {
       return newCurrencys;
     } catch (error) {
       const cachedCurrencys = await this.getCache(new Date());
-      throw new Error(cachedCurrencys ? JSON.stringify(cachedCurrencys) : error);
+      throw new ExchangeRatesError(cachedCurrencys ?? null, { cause: error });
     }
   }
 

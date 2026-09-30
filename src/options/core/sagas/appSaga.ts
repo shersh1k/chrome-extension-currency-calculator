@@ -15,11 +15,11 @@ function* getExchangeRates(): SagaIterator {
 
     yield put(appActions.getExchangeRatesSuccess());
     yield put(appActions.putExchangeRatesToStore({ exchangeRates }));
-  } catch (error) {
+  } catch {
     yield put(appActions.getExchangeRatesFailure());
   }
 }
 
 export function* appSaga(): SagaIterator {
-  yield takeLatest(appActions.getExchangeRatesRequest, getExchangeRates);
+  yield takeLatest(appActions.getExchangeRatesRequest.type, getExchangeRates);
 }

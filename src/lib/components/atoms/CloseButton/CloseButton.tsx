@@ -1,8 +1,6 @@
-import React from 'react';
-
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface IProps {
   handleClose: () => void;
@@ -12,7 +10,7 @@ export const CloseButton: React.FC<IProps> = ({ handleClose }) => {
   const handlePropagation = (event: React.MouseEvent) => event.stopPropagation();
 
   return (
-    <Tooltip PopperProps={{ disablePortal: true }} placement="top" title="Закрыть">
+    <Tooltip placement="top" slotProps={{ popper: { disablePortal: true } }} title="Закрыть">
       <IconButton
         color="secondary"
         size="small"

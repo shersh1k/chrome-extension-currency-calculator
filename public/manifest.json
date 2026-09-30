@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Currency Calculator",
   "description": "Currency Calculator",
@@ -16,9 +16,13 @@
     "512": "icon512.png"
   },
 
-  "browser_action": {
+  "action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html"
+  },
+
+  "background": {
+    "service_worker": "js/background.js"
   },
 
   "content_scripts": [
@@ -28,7 +32,14 @@
     }
   ],
 
-  "permissions": ["storage", "<all_urls>"],
+  "permissions": ["storage", "activeTab", "scripting"],
 
-  "web_accessible_resources": ["options.html"]
+  "host_permissions": ["https://www.nbrb.by/*", "https://www.cbr-xml-daily.ru/*", "https://api.coinlore.net/*"],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["options.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

@@ -1,20 +1,19 @@
-import React from 'react';
-
 import { useDispatch } from 'react-redux';
-import { ListChildComponentProps } from 'react-window';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { RowComponentProps } from 'react-window';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { IAbbreviation } from 'types';
 import { optionsActions } from 'commonCore';
 
-interface IProps {
+export interface ICurrencyRowProps {
   items: IAbbreviation[];
   favorites: string[];
 }
 
-export const CurrencyRow = ({ items, favorites }: IProps) => {
+export const CurrencyRow = ({ index, style, items, favorites }: RowComponentProps<ICurrencyRowProps>) => {
   const dispatch = useDispatch();
+
   const handleFavoriteChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const abbreviationString = event.target.value;
 
@@ -25,7 +24,7 @@ export const CurrencyRow = ({ items, favorites }: IProps) => {
     dispatch(optionsActions.setFavorites({ favorites: newFavorites }));
   };
 
-  return ({ index, style }: ListChildComponentProps) => (
+  return (
     <div style={{ paddingLeft: 15, ...style }}>
       <FormControlLabel
         control={
@@ -37,7 +36,6 @@ export const CurrencyRow = ({ items, favorites }: IProps) => {
             onChange={handleFavoriteChange}
           />
         }
-        key={items[index].id}
         label={`${items[index].name} (${items[index].abbreviation})`}
       />
     </div>

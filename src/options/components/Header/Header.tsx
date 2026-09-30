@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 import { IS_PAGE_TOOLTIP, API, FAVORITE, NAMING } from 'consts';
 import { setCacheToStorage, setOptionsToStorage } from 'storage';
@@ -15,7 +15,6 @@ import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'optionsCore';
 
 export const Header = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
 
   const tab = useSelector(appSelectors.getTab);
@@ -26,7 +25,7 @@ export const Header = () => {
 
   const [saveStatus, setSaveStatus] = useState(false);
 
-  const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     dispatch(appActions.setTab({ tab: newValue }));
   };
@@ -61,7 +60,7 @@ export const Header = () => {
           <Tab label="О расширении" />
         </Tabs>
 
-        <div className={classes.save}>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
           <Button variant="outlined" onClick={handleDefaultOptions}>
             <Typography variant="button">Сбросить</Typography>
           </Button>
@@ -74,18 +73,8 @@ export const Header = () => {
               <Typography variant="button">Сохранить</Typography>
             )}
           </Button>
-        </div>
+        </Box>
       </Toolbar>
     </AppBar>
   );
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    save: {
-      flex: 1,
-      display: 'flex',
-      justifyContent: 'flex-end',
-    },
-  }),
-);

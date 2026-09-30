@@ -1,5 +1,5 @@
+import { createReducer } from '@reduxjs/toolkit';
 import { IExchangeRate, IPosition } from 'types';
-import { ActionType, createReducer } from 'typesafe-actions';
 
 import { appActions } from '../actions';
 
@@ -29,64 +29,66 @@ const defaultState: IAppState = {
   date: new Date(),
 };
 
-export const appReducer = createReducer<IAppState, ActionType<typeof appActions>>(defaultState)
-  .handleAction(appActions.setIsShowed, (state, { payload: { isShowed } }) => ({
-    ...state,
-    isShowed,
-  }))
-  .handleAction(appActions.setIsPinned, (state, { payload: { isPinned } }) => ({
-    ...state,
-    isPinned,
-  }))
-  .handleAction(appActions.setPosition, (state, { payload: { position } }) => ({
-    ...state,
-    position,
-  }))
+export const appReducer = createReducer(defaultState, (builder) =>
+  builder
+    .addCase(appActions.setIsShowed, (state, { payload: { isShowed } }) => ({
+      ...state,
+      isShowed,
+    }))
+    .addCase(appActions.setIsPinned, (state, { payload: { isPinned } }) => ({
+      ...state,
+      isPinned,
+    }))
+    .addCase(appActions.setPosition, (state, { payload: { position } }) => ({
+      ...state,
+      position,
+    }))
 
-  .handleAction(appActions.setNumber, (state, { payload: { number } }) => ({
-    ...state,
-    number,
-  }))
-  .handleAction(appActions.setDate, (state, { payload: { date } }) => ({
-    ...state,
-    ...(date && { date }),
-  }))
+    .addCase(appActions.setNumber, (state, { payload: { number } }) => ({
+      ...state,
+      number,
+    }))
+    .addCase(appActions.setDate, (state, { payload: { date } }) => ({
+      ...state,
+      ...(date && { date }),
+    }))
 
-  .handleAction(appActions.getExchangeRatesRequest, (state) => ({
-    ...state,
-    exchangeRates: [],
-    loading: true,
-    error: false,
-  }))
-  .handleAction(appActions.getExchangeRatesSuccess, (state) => ({
-    ...state,
-    loading: false,
-  }))
-  .handleAction(appActions.getExchangeRatesFailure, (state) => ({
-    ...state,
-    loading: false,
-    error: true,
-  }))
-  .handleAction(appActions.putExchangeRatesToStore, (state, { payload: { exchangeRates } }) => ({
-    ...state,
-    exchangeRates,
-  }))
+    .addCase(appActions.getExchangeRatesRequest, (state) => ({
+      ...state,
+      exchangeRates: [],
+      loading: true,
+      error: false,
+    }))
+    .addCase(appActions.getExchangeRatesSuccess, (state) => ({
+      ...state,
+      loading: false,
+    }))
+    .addCase(appActions.getExchangeRatesFailure, (state) => ({
+      ...state,
+      loading: false,
+      error: true,
+    }))
+    .addCase(appActions.putExchangeRatesToStore, (state, { payload: { exchangeRates } }) => ({
+      ...state,
+      exchangeRates,
+    }))
 
-  .handleAction(appActions.open, (state, { payload: { position, number } }) => ({
-    ...state,
-    position,
-    number,
-    isShowed: true,
-  }))
-  .handleAction(appActions.close, (state) => ({
-    ...state,
-    isShowed: false,
-    isPinned: false,
-    position: { x: 0, y: 0 },
+    .addCase(appActions.open, (state, { payload: { position, number } }) => ({
+      ...state,
+      position,
+      number,
+      isShowed: true,
+    }))
+    .addCase(appActions.close, (state) => ({
+      ...state,
+      isShowed: false,
+      isPinned: false,
+      position: { x: 0, y: 0 },
 
-    loading: false,
-    error: false,
+      loading: false,
+      error: false,
 
-    number: null,
-    date: new Date(),
-  }));
+      number: null,
+      date: new Date(),
+    })),
+);

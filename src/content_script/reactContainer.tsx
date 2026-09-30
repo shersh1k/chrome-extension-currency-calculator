@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { StylesProvider, jssPreset } from '@material-ui/styles';
-import { create } from 'jss';
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
 
 import { Theme } from 'theme';
 import { IPosition } from 'types';
@@ -17,22 +17,21 @@ export const popoverContainer = makePopoverContainer(shadowRoot);
 
 export const stylesRoot = makeStylesRoot(shadowRoot);
 
-const jss = create({
-  ...jssPreset(),
-  insertionPoint: stylesRoot,
-});
+// emotion inserts styles into shadow root instead of document.head;
+// speedy (CSSOM insertRule) is disabled because rules inserted that way are lost
+// while the root is detached from the document (before first open and after every close)
+const emotionCache = createCache({ key: 'shersh1k', container: stylesRoot, speedy: false });
 
-ReactDOM.render(
-  <React.StrictMode>
+createRoot(reactMountPoint).render(
+  <StrictMode>
     <Provider store={store}>
-      <StylesProvider jss={jss}>
+      <CacheProvider value={emotionCache}>
         <Theme>
           <App />
         </Theme>
-      </StylesProvider>
+      </CacheProvider>
     </Provider>
-  </React.StrictMode>,
-  reactMountPoint,
+  </StrictMode>,
 );
 
 export function appendReactContainer({ x, y }: IPosition) {
@@ -53,13 +52,13 @@ export function changeReactContainerPosition({ x, y }: IPosition) {
   const { width } = div.getBoundingClientRect();
 
   // min position
-  // eslint-disable-next-line no-param-reassign
+
   x = x < 0 ? 0 : x;
-  // eslint-disable-next-line no-param-reassign
+
   y = y < 0 ? 0 : y;
 
   // max position
-  // eslint-disable-next-line no-param-reassign
+
   x = x > window.innerWidth - width ? window.innerWidth - width : x;
 
   mainRoot.style.top = `${y}px`;
@@ -109,7 +108,7 @@ function makePopoverContainer(shadowDivRoot: ShadowRoot) {
 }
 
 function makeStylesRoot(shadowDivRoot: ShadowRoot) {
-  const div = document.createComment('jss-insertion-point');
+  const div = document.createElement('div');
   shadowDivRoot.appendChild(div);
 
   return div;

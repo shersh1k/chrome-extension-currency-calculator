@@ -1,7 +1,4 @@
-import React from 'react';
-
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 
 import { IExchangeRate } from 'types';
 import { formatMoneySpaces } from 'helpers';
@@ -12,23 +9,15 @@ interface IProps {
   value?: number | string;
 }
 
+const valueSx = { paddingLeft: '10px', fontWeight: 700 } as const;
+
 export const CurrencyValue: React.FC<IProps> = ({ currency, number, value }) => {
-  const classes = useStyles();
   if (currency)
     return (
-      <Typography className={classes.value}>
+      <Typography sx={valueSx}>
         {value ?? formatMoneySpaces(((Number(number ?? 0) / currency.exchange) * currency.scale).toFixed(2))}
       </Typography>
     );
 
-  return <Typography className={classes.value}>{value}</Typography>;
+  return <Typography sx={valueSx}>{value}</Typography>;
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    value: {
-      paddingLeft: 10,
-      fontWeight: 700,
-    },
-  }),
-);

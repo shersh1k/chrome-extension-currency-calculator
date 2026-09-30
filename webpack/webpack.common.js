@@ -1,13 +1,13 @@
-const webpack = require('webpack');
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const srcDir = path.join(__dirname, '..', 'src');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+
+const srcDir = path.join(__dirname, '..', 'src');
 
 module.exports = {
   entry: {
+    background: path.join(srcDir, 'background/index.ts'),
     popup: path.join(srcDir, 'popup/index.tsx'),
     options: path.join(srcDir, 'options/index.tsx'),
     content_script: path.join(srcDir, 'content_script/index.tsx'),
@@ -15,11 +15,13 @@ module.exports = {
   output: {
     path: path.join(__dirname, '../dist/js'),
     filename: '[name].js',
+    clean: true,
   },
   optimization: {
     splitChunks: {
       name: 'vendor',
-      chunks: 'initial',
+      // service worker is loaded as a single file from manifest, so it must not share chunks
+      chunks: (chunk) => chunk.name !== 'background',
     },
   },
   module: {
@@ -38,9 +40,7 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [{ from: '.', to: '../', context: 'public' }],
-      options: {},
     }),
-    new ESLintPlugin({ extensions: ['ts', 'tsx'] }),
-    new BundleAnalyzerPlugin(),
-  ],
+    process.env.ANALYZE && new BundleAnalyzerPlugin(),
+  ].filter(Boolean),
 };

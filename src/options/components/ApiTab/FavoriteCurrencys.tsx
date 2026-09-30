@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import ClearIcon from '@material-ui/icons/Clear';
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator';
-import clsx from 'clsx';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import ClearIcon from '@mui/icons-material/Clear';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 import { IAbbreviation } from 'types';
 import { optionsActions, optionsSelectors } from 'commonCore';
@@ -18,8 +17,6 @@ interface IProps {
 
 export const FavoriteCurrencys: React.FC<IProps> = ({ allAbbreviations }) => {
   const dispatch = useDispatch();
-
-  const { favoriteCurrencys, list, draggableList, item, itemSpan, draggableItem } = useStyles();
 
   const favorites = useSelector(optionsSelectors.getFavorites);
   const [favExt, setFavExt] = useState<IAbbreviation[]>([]);
@@ -48,37 +45,53 @@ export const FavoriteCurrencys: React.FC<IProps> = ({ allAbbreviations }) => {
   return (
     <div>
       <Typography align="center">Порядок показа валют:</Typography>
-      <div className={favoriteCurrencys}>
+      <Box sx={{ width: 320, height: 600, overflowY: 'auto' }}>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="droppable">
-            {(dropProvided, dropSnapshot) => (
-              <div className={clsx(list, dropSnapshot.isDraggingOver && draggableList)} ref={dropProvided.innerRef}>
+            {(dropProvided) => (
+              <Box
+                ref={dropProvided.innerRef}
+                {...dropProvided.droppableProps}
+                sx={{ borderRadius: '4px', padding: '4px', marginTop: '5px', transition: 'all 0.5s' }}
+              >
                 {favExt.map((favorite, index) => (
                   <Draggable draggableId={String(favorite.id)} index={index} key={favorite.id}>
                     {(dragProvided, dragSnapshot) => (
-                      <div
+                      <Box
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
                         {...dragProvided.dragHandleProps}
-                        className={clsx(item, dragSnapshot.isDragging && draggableItem)}
+                        sx={{
+                          userSelect: 'none',
+                          padding: '8px',
+                          marginBottom: '4px',
+                          width: 300,
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          transition: 'background 0.5s',
+                          border: 2,
+                          borderColor: 'divider',
+                          ...(dragSnapshot.isDragging && { bgcolor: 'primary.main' }),
+                        }}
                       >
                         {favorite.name}({favorite.abbreviation})
-                        <span className={itemSpan}>
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
                           <IconButton color="secondary" size="small" onClick={() => handleDelete(favorite)}>
                             <ClearIcon />
                           </IconButton>
                           <DragIndicatorIcon />
-                        </span>
-                      </div>
+                        </Box>
+                      </Box>
                     )}
                   </Draggable>
                 ))}
                 {dropProvided.placeholder}
-              </div>
+              </Box>
             )}
           </Droppable>
         </DragDropContext>
-      </div>
+      </Box>
     </div>
   );
 };
@@ -90,40 +103,3 @@ const reorder = (list: IAbbreviation[], startIndex: number, endIndex: number) =>
 
   return result;
 };
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    favoriteCurrencys: {
-      width: 320,
-      height: 600,
-      overflowY: 'auto',
-    },
-
-    list: {
-      borderRadius: 4,
-      padding: 4,
-      marginTop: 5,
-      transition: 'all 0.5s',
-    },
-    draggableList: {},
-
-    item: {
-      userSelect: 'none',
-      padding: 4 * 2,
-      marginBottom: 4,
-      width: 300,
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      transition: 'background 0.5s',
-      border: `2px solid ${theme.palette.divider}`,
-    },
-    draggableItem: {
-      background: theme.palette.primary.main,
-    },
-    itemSpan: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-  }),
-);

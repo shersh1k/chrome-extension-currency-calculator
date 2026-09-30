@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Box from '@material-ui/core/Box';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import TextField from '@material-ui/core/TextField';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { SelectChangeEvent } from '@mui/material/Select';
+import Switch from '@mui/material/Switch';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
 
 import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
 import { IExchangeRate } from 'types';
-import { getOptionsFromStorage, setOptionsToStorage } from 'storage';
+import { getOptionsFromStorage, setOptionsToStorage, StorageOptionsChanges } from 'storage';
 import { formatMoneySpaces, getCalculatedRates, getSelectedNumber } from 'helpers';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'popupCore';
 
 export const Popup: React.FC = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
 
   const isPageTooltip = useSelector(optionsSelectors.getIsPageTooltip);
@@ -38,13 +37,13 @@ export const Popup: React.FC = () => {
   const [currencys, setCurrencys] = useState<IExchangeRate[]>([]);
   const [rates, setRates] = useState<IExchangeRate[]>([]);
 
-  const handleChangeTab = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     dispatch(appActions.setTab({ tab: newValue }));
   };
 
-  const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    const newCurrency = (event.target as HTMLInputElement).value;
+  const handleChangeCurrency = (event: SelectChangeEvent) => {
+    const newCurrency = event.target.value;
     setOptionsToStorage({ latestCurrency: newCurrency });
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
@@ -71,7 +70,7 @@ export const Popup: React.FC = () => {
     dispatch(appActions.setDate({ date: new Date() }));
   };
 
-  const saveOptions = (event: React.ChangeEvent<{}>, checked: boolean) => {
+  const saveOptions = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     setOptionsToStorage({ isPageTooltip: checked });
   };
 
@@ -82,15 +81,16 @@ export const Popup: React.FC = () => {
       dispatch(optionsActions.setOptions(options));
     });
 
-    chrome.tabs.executeScript({ code: 'window.getSelection().toString();' }, (selection) => {
-      if (!selection) return;
-      const newNumber = getSelectedNumber(selection[0]) ?? null;
+    getActiveTabSelection().then((selection) => {
+      if (selection === undefined) return;
+      const newNumber = getSelectedNumber(selection) ?? null;
       dispatch(appActions.setNumber({ number: newNumber || 1 }));
     });
 
     chrome.storage.onChanged.addListener(storageChangeListener);
 
-    function storageChangeListener(options: { [key: string]: chrome.storage.StorageChange }) {
+    function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
+      const options = changes as StorageOptionsChanges;
       dispatch(
         optionsActions.setOptions({
           isPageTooltip: options.isPageTooltip?.newValue,
@@ -120,8 +120,17 @@ export const Popup: React.FC = () => {
   if (api === null || favorites === null || isPageTooltip === null || naming === null) return null;
 
   return (
-    <div className={classes.root}>
-      <main className={classes.main}>
+    <Box
+      sx={{
+        width: 400,
+        minHeight: 500,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
+      <Box component="main" sx={{ flex: 1, width: '100%' }}>
         <AppBar position="sticky">
           <Tabs value={tab} variant="fullWidth" onChange={handleChangeTab}>
             <Tab label="Калькулятор" />
@@ -129,7 +138,7 @@ export const Popup: React.FC = () => {
             <Tab label="Криптовалюты" />
           </Tabs>
         </AppBar>
-        <Box hidden={tab !== 0} p={3}>
+        <Box hidden={tab !== 0} sx={{ p: 3 }}>
           <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
           <CurrencyRow>
             <ChooseCurrencySelection
@@ -140,9 +149,10 @@ export const Popup: React.FC = () => {
             />
             <TextField
               fullWidth
-              className={classes.textFieldStyled}
+              sx={{ '& input': { textAlign: 'right' } }}
               type="number"
               value={number ?? ''}
+              variant="standard"
               onChange={hanldeChangeNumber}
               onFocus={hanldeSelectNumber}
             />
@@ -154,17 +164,17 @@ export const Popup: React.FC = () => {
             </CurrencyRow>
           ))}
           {loading && (
-            <div className={classes.loader}>
+            <Box sx={loaderSx}>
               <CircularProgress />
-            </div>
+            </Box>
           )}
         </Box>
-        <Box hidden={tab !== 1} p={3}>
+        <Box hidden={tab !== 1} sx={{ p: 3 }}>
           <DatePicker clearDate={handleClearDate} date={date} onChange={handleChangeDate} />
           {loading && (
-            <div className={classes.loader}>
+            <Box sx={loaderSx}>
               <CircularProgress />
-            </div>
+            </Box>
           )}
           {currencys.map((item) => (
             <CurrencyRow key={item.id}>
@@ -173,11 +183,11 @@ export const Popup: React.FC = () => {
             </CurrencyRow>
           ))}
         </Box>
-        <Box hidden={tab !== 2} p={3}>
+        <Box hidden={tab !== 2} sx={{ p: 3 }}>
           {loading && (
-            <div className={classes.loader}>
+            <Box sx={loaderSx}>
               <CircularProgress />
-            </div>
+            </Box>
           )}
           {exchangeRatesCrypto.map((item) => (
             <CurrencyRow key={item.id}>
@@ -186,67 +196,48 @@ export const Popup: React.FC = () => {
             </CurrencyRow>
           ))}
         </Box>
-      </main>
-      <footer className={classes.footer}>
+      </Box>
+      <Box
+        component="footer"
+        sx={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderTop: '1px solid grey',
+        }}
+      >
         <FormControlLabel
           control={<Switch checked={isPageTooltip} color="primary" onChange={saveOptions} />}
           label="Работать на странице"
         />
         <OptionsButton />
-      </footer>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      width: 400,
-      minHeight: 500,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    main: {
-      flex: 1,
-      width: '100%',
-    },
-    row: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    textFieldStyled: {
-      '& input': {
-        textAlign: 'right',
-      },
-    },
-    abbreviation: {
-      color: 'black',
-    },
-    value: {
-      paddingLeft: 10,
-      fontWeight: 700,
-      position: 'relative',
-      color: 'black',
-    },
-    exchangeResults: {
-      paddingTop: 10,
-    },
-    footer: {
-      width: '100%',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderTop: '1px solid grey',
-    },
-    loader: {
-      minHeight: 90,
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  }),
-);
+const loaderSx = {
+  minHeight: 90,
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+} as const;
+
+// returns undefined when script can't be injected (e.g. chrome:// pages)
+async function getActiveTabSelection(): Promise<string | undefined> {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id === undefined) return;
+
+    const [injection] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => window.getSelection()?.toString() ?? '',
+    });
+
+    return injection?.result;
+  } catch {
+    return undefined;
+  }
+}

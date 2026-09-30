@@ -1,11 +1,9 @@
-/* eslint-disable import/no-duplicates */
-/* eslint-disable camelcase */
-import format from 'date-fns/format';
-import isToday from 'date-fns/isToday';
-import qs from 'qs';
+import { format, isToday } from 'date-fns';
+
 import { IExchangeRate } from 'types';
 
 import { BaseApi } from './BaseApi';
+import { fetchJsonData } from './fetchJson';
 
 export class BYN extends BaseApi {
   url = 'https://www.nbrb.by/api/exrates/rates';
@@ -15,17 +13,16 @@ export class BYN extends BaseApi {
   name = 'Белорусский рубль';
 
   public async load(date: Date) {
-    const body = (periodicity: 0 | 1) => ({
-      periodicity,
-      ...(!isToday(date) && { ondate: format(date, 'yyyy-M-d') }),
-    });
+    const query = (periodicity: 0 | 1) =>
+      new URLSearchParams({
+        periodicity: String(periodicity),
+        ...(!isToday(date) && { ondate: format(date, 'yyyy-M-d') }),
+      });
 
-    const result = await Promise.all([
-      fetch(`${this.url}?${qs.stringify(body(0))}`),
-      fetch(`${this.url}?${qs.stringify(body(1))}`),
+    const data = await Promise.all([
+      fetchJsonData<IBYN[]>(`${this.url}?${query(0)}`),
+      fetchJsonData<IBYN[]>(`${this.url}?${query(1)}`),
     ]);
-
-    const data: IBYN[][] = await Promise.all(result.map((item) => item.json()));
 
     const newCurrencys: IExchangeRate[] = data.flat().map((item) => ({
       id: item.Cur_ID,

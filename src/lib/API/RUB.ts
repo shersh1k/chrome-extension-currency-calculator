@@ -1,11 +1,9 @@
-// eslint-disable-next-line import/no-duplicates
-import format from 'date-fns/format';
-// eslint-disable-next-line import/no-duplicates
-import isToday from 'date-fns/isToday';
+import { format, isToday } from 'date-fns';
 
 import { IExchangeRate } from 'types';
 
 import { BaseApi } from './BaseApi';
+import { fetchJsonData } from './fetchJson';
 
 export class RUB extends BaseApi {
   url = 'https://www.cbr-xml-daily.ru';
@@ -16,9 +14,8 @@ export class RUB extends BaseApi {
 
   public async load(date: Date) {
     const url = `${this.url}/${!isToday(date) ? `archive/${format(date, 'yyyy/MM/dd')}/` : ''}daily_json.js`;
-    const result = await fetch(url);
-    const data = await result.json();
-    const valute: IRUB[] = Object.values(data.Valute);
+    const data = await fetchJsonData<{ Valute: Record<string, IRUB> }>(url);
+    const valute = Object.values(data.Valute);
 
     const currencys: IExchangeRate[] = valute.map((item) => ({
       id: item.ID,

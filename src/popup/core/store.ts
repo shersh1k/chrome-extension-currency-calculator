@@ -1,19 +1,26 @@
-import { applyMiddleware, createStore, Middleware, Store } from 'redux';
 import { logger } from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 
 import { rootReducer } from './rootReducer';
 import { rootSaga } from './rootSaga';
-import { IState } from './types';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const sagaMiddleware = createSagaMiddleware();
 const middlewares: Middleware[] = [sagaMiddleware];
 
-if (process.env.NODE_ENV === `development`) {
+if (isDevelopment) {
   middlewares.push(logger);
 }
 
-export const store: Store<IState> = createStore(rootReducer, applyMiddleware(...middlewares));
+export const store = configureStore({
+  reducer: rootReducer,
+  // side effects live in sagas, and state keeps Date objects
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ thunk: false, serializableCheck: false }).concat(middlewares),
+  devTools: isDevelopment,
+});
 
 export const initialRootState = {
   ...store.getState(),

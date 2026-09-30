@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import { SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import { CurrencyName, CurrencyRow, CurrencyValue } from 'atoms';
 import { ChooseCurrencySelection, DatePicker } from 'molecules';
@@ -18,7 +19,6 @@ import { appActions, appSelectors } from 'contentScriptCore';
 import { popoverContainer } from '../../reactContainer';
 
 export const CurrencyCalculator: React.FC = () => {
-  const { root, loader, exchangeResults, textFieldStyled } = useStyles();
   const dispatch = useDispatch();
 
   const api = useSelector(optionsSelectors.getApi);
@@ -41,8 +41,8 @@ export const CurrencyCalculator: React.FC = () => {
     dispatch(appActions.setDate({ date: newDate }));
   };
 
-  const handleChangeCurrency = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-    const newCurrency = (event.target as HTMLInputElement).value;
+  const handleChangeCurrency = (event: SelectChangeEvent) => {
+    const newCurrency = event.target.value;
     setOptionsToStorage({ latestCurrency: newCurrency });
     dispatch(optionsActions.setLatestCurrency({ latestCurrency: newCurrency }));
   };
@@ -67,7 +67,7 @@ export const CurrencyCalculator: React.FC = () => {
   if (number === null || currency === null || api === null || naming === null) return null;
 
   return (
-    <div className={root}>
+    <Box sx={{ minWidth: 190, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <DatePicker clearDate={handleClearDate} container={popoverContainer} date={date} onChange={handleChangeDate} />
       <CurrencyRow>
         <ChooseCurrencySelection
@@ -78,25 +78,31 @@ export const CurrencyCalculator: React.FC = () => {
           handleChooseCurrency={handleChangeCurrency}
         />
         {/* value={new Intl.NumberFormat('ru-RU').format(Number(number) ?? 0)} */}
-        <TextField className={textFieldStyled} type="number" value={number ?? 0} onChange={hanldeChangeNumber} />
+        <TextField
+          sx={{ '& input': { textAlign: 'right', fontWeight: 700, width: 'auto' } }}
+          type="number"
+          value={number ?? 0}
+          variant="standard"
+          onChange={hanldeChangeNumber}
+        />
       </CurrencyRow>
-      <div className={exchangeResults}>
+      <Box sx={{ paddingTop: '10px' }}>
         {rates.map((item) => (
           <CurrencyRow key={item.id}>
             <CurrencyName disablePortal currency={item} naming={naming} onClick={handleClickCurrency} />
             <CurrencyValue currency={item} number={number} />
           </CurrencyRow>
         ))}
-      </div>
+      </Box>
       {loading && (
-        <div className={loader}>
+        <Box sx={{ minHeight: 90, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <CircularProgress />
-        </div>
+        </Box>
       )}
       {error && (
         <Tooltip
-          PopperProps={{ disablePortal: true }}
           placement="left"
+          slotProps={{ popper: { disablePortal: true } }}
           title={
             <Typography>
               Попробуйте выбрать другую дату, <br />
@@ -112,34 +118,6 @@ export const CurrencyCalculator: React.FC = () => {
           </Typography>
         </Tooltip>
       )}
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    loader: {
-      minHeight: 90,
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    root: {
-      minWidth: 190,
-      display: 'flex',
-      flexDirection: 'column',
-      boxSizing: 'border-box',
-    },
-    textFieldStyled: {
-      '& input': {
-        textAlign: 'right',
-        fontWeight: 700,
-        width: 'auto',
-      },
-    },
-    exchangeResults: {
-      paddingTop: 10,
-    },
-  }),
-);

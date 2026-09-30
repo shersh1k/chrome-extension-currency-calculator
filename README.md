@@ -16,6 +16,8 @@ npm install
 npm run build
 ```
 
+`build` runs `npm run lint` first. Other scripts: `npm run typecheck`, `npm run analyze` (bundle analyzer).
+
 ## Build in watch mode
 
 ### terminal

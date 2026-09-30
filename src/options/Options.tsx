@@ -1,15 +1,14 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import Box from '@mui/material/Box';
 
-import { getOptionsFromStorage } from 'storage';
+import { getOptionsFromStorage, StorageOptionsChanges } from 'storage';
 import { optionsActions } from 'commonCore';
 
 import { Header, MainTab, CommonTab, ApiTab, AboutTab } from './components';
 
 export const Options = () => {
-  const classes = useStyles();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -19,7 +18,8 @@ export const Options = () => {
 
     chrome.storage.onChanged.addListener(storageChangeListener);
 
-    function storageChangeListener(options: { [key: string]: chrome.storage.StorageChange }) {
+    function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
+      const options = changes as StorageOptionsChanges;
       dispatch(
         optionsActions.setOptions({
           isPageTooltip: options.isPageTooltip?.newValue,
@@ -36,21 +36,12 @@ export const Options = () => {
   }, [dispatch]);
 
   return (
-    <div className={classes.root}>
+    <Box sx={{ width: 1024, marginLeft: 'calc(50vw - 512px)' }}>
       <Header />
       <MainTab />
       <CommonTab />
       <ApiTab />
       <AboutTab />
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      width: 1024,
-      marginLeft: 'calc(50vw - 512px)',
-    },
-  }),
-);

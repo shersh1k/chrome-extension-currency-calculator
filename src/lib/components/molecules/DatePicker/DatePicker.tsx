@@ -1,63 +1,52 @@
-import React from 'react';
-
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import DateFnsUtils from '@date-io/date-fns';
-import { DatePicker as MuiDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-// eslint-disable-next-line import/no-duplicates
-import format from 'date-fns/format';
-// eslint-disable-next-line import/no-duplicates
-import isToday from 'date-fns/isToday';
-// eslint-disable-next-line import/no-duplicates
-import ruLocale from 'date-fns/locale/ru';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import { PortalProps } from '@mui/material/Portal';
+import Tooltip from '@mui/material/Tooltip';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { format, isToday, isValid } from 'date-fns';
+import { ru } from 'date-fns/locale/ru';
 
 interface IProps {
   date: Date;
   onChange: (date: Date | null) => void;
   clearDate: () => void;
-  container?: React.ReactInstance | (() => React.ReactInstance | null) | null | undefined;
+  container?: PortalProps['container'];
 }
 
 export const DatePicker: React.FC<IProps> = ({ date, onChange, clearDate, container }) => {
-  const classes = useStyles();
+  // field allows typing, so skip incomplete/invalid dates
+  const handleChange = (newDate: Date | null) => {
+    if (newDate && isValid(newDate)) onChange(newDate);
+  };
 
   return (
-    <div className={classes.datePicker}>
-      <MuiPickersUtilsProvider locale={ruLocale} utils={DateFnsUtils}>
-        <MuiDatePicker
-          autoOk
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <LocalizationProvider adapterLocale={ru} dateAdapter={AdapterDateFns}>
+        <DesktopDatePicker
+          closeOnSelect
           disableFuture
-          PopoverProps={{ container }}
-          className={classes.muiDatePicker}
-          format="Курс на dd.MM.yyyy"
+          format="'Курс на' dd.MM.yyyy"
+          slotProps={{
+            popper: { container },
+            textField: { variant: 'standard', sx: { width: 210 } },
+          }}
           value={date}
-          variant="inline"
-          onChange={onChange}
+          onChange={handleChange}
         />
-      </MuiPickersUtilsProvider>
+      </LocalizationProvider>
       {!isToday(date) && (
-        <Tooltip PopperProps={{ disablePortal: true }} placement="top" title={format(new Date(), 'dd.MM.yyyy')}>
-          <Button className={classes.muiButton} color="primary" size="small" onClick={clearDate}>
+        <Tooltip
+          placement="top"
+          slotProps={{ popper: { disablePortal: true } }}
+          title={format(new Date(), 'dd.MM.yyyy')}
+        >
+          <Button color="primary" size="small" sx={{ marginLeft: '20px' }} onClick={clearDate}>
             Сегодня
           </Button>
         </Tooltip>
       )}
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    datePicker: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    muiDatePicker: {
-      width: 150,
-    },
-    muiButton: {
-      marginLeft: 20,
-    },
-  }),
-);

@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { FixedSizeList } from 'react-window';
-import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import IconButton from '@material-ui/core/IconButton';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import ClearIcon from '@material-ui/icons/Clear';
+import { List } from 'react-window';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import { Api } from 'API';
 import { ApiTypes, IAbbreviation } from 'types';
@@ -32,7 +32,7 @@ export const ApiTab = () => {
   const [showedAbbreviations, setShowedAbbreviations] = useState<IAbbreviation[]>([]);
   const [searchString, setSearchString] = useState('');
 
-  const handleApiChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
+  const handleApiChange = (event: SelectChangeEvent<ApiTypes>) => {
     const newApi = event.target.value as ApiTypes;
     dispatch(optionsActions.setApi({ api: newApi }));
     dispatch(optionsActions.setFavorites({ favorites: FAVORITE }));
@@ -66,10 +66,12 @@ export const ApiTab = () => {
   }, [allAbbreviations, searchString]);
 
   return (
-    <Box hidden={tab !== 2} p={3}>
+    <Box hidden={tab !== 2} sx={{ p: 3 }}>
       <FormControl fullWidth>
-        <InputLabel id="api-select-label">Предоставление курсов (API)</InputLabel>
-        <Select labelId="api-select-label" value={api ?? API} onChange={handleApiChange}>
+        <InputLabel id="api-select-label" variant="standard">
+          Предоставление курсов (API)
+        </InputLabel>
+        <Select labelId="api-select-label" value={api ?? API} variant="standard" onChange={handleApiChange}>
           <MenuItem value="BYN">Национальный банк Республики Беларусь</MenuItem>
           <MenuItem value="RUB">Центральный банк Российской Федерации</MenuItem>
         </Select>
@@ -79,7 +81,12 @@ export const ApiTab = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
             <Typography component="span">Выберите валюты предоставляемые API:</Typography>
             <div style={{ width: 250 }}>
-              <TextField placeholder="Найти валюту" value={searchString} onChange={handleChangeSearchString} />
+              <TextField
+                placeholder="Найти валюту"
+                value={searchString}
+                variant="standard"
+                onChange={handleChangeSearchString}
+              />
               {searchString && (
                 <IconButton color="secondary" size="small" onClick={handleClearSearch}>
                   <ClearIcon />
@@ -87,9 +94,13 @@ export const ApiTab = () => {
               )}
             </div>
           </div>
-          <FixedSizeList height={600} itemCount={showedAbbreviations.length} itemSize={46} width={630}>
-            {CurrencyRow({ items: showedAbbreviations, favorites })}
-          </FixedSizeList>
+          <List
+            rowComponent={CurrencyRow}
+            rowCount={showedAbbreviations.length}
+            rowHeight={46}
+            rowProps={{ items: showedAbbreviations, favorites }}
+            style={{ height: 600, width: 630 }}
+          />
         </div>
         {allAbbreviations.length > 0 && <FavoriteCurrencys allAbbreviations={allAbbreviations} />}
       </div>

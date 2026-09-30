@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import { Provider } from 'react-redux';
 
@@ -8,13 +8,12 @@ import { store } from 'popupCore';
 
 import { Popup } from './Popup';
 
-ReactDOM.render(
-  <React.StrictMode>
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <StrictMode>
     <Provider store={store}>
       <Theme>
         <Popup />
       </Theme>
     </Provider>
-  </React.StrictMode>,
-  document.getElementById('root'),
+  </StrictMode>,
 );

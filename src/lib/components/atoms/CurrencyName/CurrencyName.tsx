@@ -1,11 +1,7 @@
-import React from 'react';
-
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import Badge from '@material-ui/core/Badge';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import clsx from 'clsx';
+import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 
 import { IExchangeRate, NamingTypes } from 'types';
 import { getName } from 'helpers';
@@ -19,9 +15,9 @@ interface IProps {
   disablePortal?: boolean;
 }
 
-export const CurrencyName: React.FC<IProps> = ({ onClick, currency, naming, scale, name, disablePortal }) => {
-  const { abbreviation } = useStyles();
+const abbreviationSx = { display: 'flex', alignItems: 'center' } as const;
 
+export const CurrencyName: React.FC<IProps> = ({ onClick, currency, naming, scale, name, disablePortal }) => {
   const handleClick = () => {
     if (onClick) onClick(currency?.abbreviation);
   };
@@ -29,17 +25,17 @@ export const CurrencyName: React.FC<IProps> = ({ onClick, currency, naming, scal
   if (currency && naming)
     return (
       <Tooltip
-        PopperProps={{ disablePortal }}
         placement="left"
+        slotProps={{ popper: { disablePortal } }}
         title={currency.conversion ? 'Курс при конвертации через основную валюту банка' : ''}
       >
         <Badge badgeContent={currency.conversion ? ' ' : 0} color="secondary" variant="dot">
           {onClick ? (
-            <Button className={clsx(abbreviation)} variant="text" onClick={handleClick}>
+            <Button sx={abbreviationSx} variant="text" onClick={handleClick}>
               {scale && currency.scale} {getName(currency, naming)}
             </Button>
           ) : (
-            <Typography className={clsx(abbreviation)}>
+            <Typography sx={abbreviationSx}>
               {scale && currency.scale} {getName(currency, naming)}
             </Typography>
           )}
@@ -47,14 +43,5 @@ export const CurrencyName: React.FC<IProps> = ({ onClick, currency, naming, scal
       </Tooltip>
     );
 
-  return <Typography className={abbreviation}>{name}</Typography>;
+  return <Typography sx={abbreviationSx}>{name}</Typography>;
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    abbreviation: {
-      display: 'flex',
-      alignItems: 'center',
-    },
-  }),
-);

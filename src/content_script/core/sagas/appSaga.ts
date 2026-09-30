@@ -1,8 +1,7 @@
 import { SagaIterator } from 'redux-saga';
 import { call, put, SagaReturnType, select, takeLatest } from 'redux-saga/effects';
 
-import { Api } from 'API';
-import { IExchangeRate } from 'types';
+import { Api, ExchangeRatesError } from 'API';
 import { optionsSelectors, ApiType } from 'commonCore';
 
 import { appActions } from '../actions';
@@ -23,11 +22,12 @@ function* getExchangeRates(): SagaIterator {
     yield put(appActions.getExchangeRatesFailure());
 
     // try to get cached results
-    const cached: IExchangeRate[] = JSON.parse(error?.message);
-    yield put(appActions.putExchangeRatesToStore({ exchangeRates: cached }));
+    if (error instanceof ExchangeRatesError && error.cached) {
+      yield put(appActions.putExchangeRatesToStore({ exchangeRates: error.cached }));
+    }
   }
 }
 
 export function* appSaga(): SagaIterator {
-  yield takeLatest(appActions.getExchangeRatesRequest, getExchangeRates);
+  yield takeLatest(appActions.getExchangeRatesRequest.type, getExchangeRates);
 }

@@ -1,8 +1,6 @@
-import React from 'react';
-
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { PortalProps } from '@mui/material/Portal';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { ApiTypes } from 'types';
 
@@ -10,8 +8,8 @@ interface IProps {
   api: ApiTypes;
   choosedCurrency: string;
   favorites: string[];
-  handleChooseCurrency: (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => void;
-  container?: React.ReactInstance | (() => React.ReactInstance | null) | null | undefined;
+  handleChooseCurrency: (event: SelectChangeEvent) => void;
+  container?: PortalProps['container'];
 }
 
 export const ChooseCurrencySelection: React.FC<IProps> = ({
@@ -21,13 +19,12 @@ export const ChooseCurrencySelection: React.FC<IProps> = ({
   handleChooseCurrency,
   container,
 }) => {
-  const classes = useStyles();
-
   return (
     <Select
       MenuProps={{ container }}
-      className={classes.selectStyled}
+      sx={{ '&.MuiInput-underline.Mui-focused:after': { borderBottom: 'none' } }}
       value={choosedCurrency}
+      variant="standard"
       onChange={handleChooseCurrency}
     >
       {[api, ...favorites].map((item) => (
@@ -38,13 +35,3 @@ export const ChooseCurrencySelection: React.FC<IProps> = ({
     </Select>
   );
 };
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    selectStyled: {
-      '&.MuiInput-underline.Mui-focused:after': {
-        borderBottom: 'none',
-      },
-    },
-  }),
-);

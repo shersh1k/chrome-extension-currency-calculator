@@ -1,10 +1,8 @@
-import React from 'react';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import SettingsIcon from '@mui/icons-material/Settings';
 
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import SettingsIcon from '@material-ui/icons/Settings';
-
-const OPTIONS_URL = chrome.extension.getURL('options.html');
+const OPTIONS_URL = chrome.runtime.getURL('options.html');
 
 interface IProps {
   disablePortal?: boolean;
@@ -16,7 +14,7 @@ export const OptionsButton: React.FC<IProps> = ({ disablePortal }) => {
   const handlePropagation = (event: React.MouseEvent) => event.stopPropagation();
 
   return (
-    <Tooltip PopperProps={{ disablePortal }} placement="top" title="Настройки расширения">
+    <Tooltip placement="top" slotProps={{ popper: { disablePortal } }} title="Настройки расширения">
       <IconButton
         color="primary"
         size="small"

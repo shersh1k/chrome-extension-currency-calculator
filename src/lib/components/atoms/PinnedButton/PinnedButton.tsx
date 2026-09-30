@@ -1,8 +1,6 @@
-import React from 'react';
-
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import EjectIcon from '@material-ui/icons/Eject';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import EjectIcon from '@mui/icons-material/Eject';
 
 interface IProps {
   isPinned: boolean;
@@ -13,7 +11,11 @@ export const PinnedButton: React.FC<IProps> = ({ isPinned, handlePinned }) => {
   const handlePropagation = (event: React.MouseEvent) => event.stopPropagation();
 
   return (
-    <Tooltip PopperProps={{ disablePortal: true }} placement="top" title={isPinned ? 'Открепить' : 'Закрепить'}>
+    <Tooltip
+      placement="top"
+      slotProps={{ popper: { disablePortal: true } }}
+      title={isPinned ? 'Открепить' : 'Закрепить'}
+    >
       <IconButton
         color={isPinned ? 'primary' : undefined}
         size="small"

@@ -18,7 +18,7 @@ function* getExchangeRates(): SagaIterator {
 
     yield put(appActions.getExchangeRatesSuccess());
     yield put(appActions.putExchangeRatesToStore({ exchangeRates }));
-  } catch (error) {
+  } catch {
     yield put(appActions.getExchangeRatesFailure());
   }
 }
@@ -33,12 +33,12 @@ function* getExchangeRatesCrypto(): SagaIterator {
       yield put(appActions.getExchangeRatesCryptoSuccess());
       yield put(appActions.putExchangeRatesCryptoToStore({ exchangeRatesCrypto }));
     }
-  } catch (error) {
+  } catch {
     yield put(appActions.getExchangeRatesCryptoFailure());
   }
 }
 
 export function* appSaga(): SagaIterator {
-  yield takeLatest(appActions.getExchangeRatesRequest, getExchangeRates);
-  yield takeLatest(appActions.getExchangeRatesCryptoRequest, getExchangeRatesCrypto);
+  yield takeLatest(appActions.getExchangeRatesRequest.type, getExchangeRates);
+  yield takeLatest(appActions.getExchangeRatesCryptoRequest.type, getExchangeRatesCrypto);
 }

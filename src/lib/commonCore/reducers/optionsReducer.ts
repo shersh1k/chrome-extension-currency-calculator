@@ -1,5 +1,5 @@
+import { createReducer } from '@reduxjs/toolkit';
 import { ApiTypes, NamingTypes } from 'types';
-import { ActionType, createReducer } from 'typesafe-actions';
 import { API } from 'consts';
 
 import { optionsActions } from '../actions';
@@ -20,37 +20,39 @@ const defaultState: IOptionsState = {
   latestCurrency: API,
 };
 
-export const optionsReducer = createReducer<IOptionsState, ActionType<typeof optionsActions>>(defaultState)
-  .handleAction(
-    optionsActions.setOptions,
-    (state, { payload: { isPageTooltip, api, favorites, naming, latestCurrency } }) => {
-      return {
-        ...state,
-        ...(typeof isPageTooltip === 'boolean' && { isPageTooltip }),
-        ...(api && { api }),
-        ...(favorites && { favorites }),
-        ...(naming && { naming }),
-        ...(latestCurrency && { latestCurrency }),
-      };
-    },
-  )
-  .handleAction(optionsActions.setIsPageTooltip, (state, { payload: { isPageTooltip } }) => ({
-    ...state,
-    isPageTooltip,
-  }))
-  .handleAction(optionsActions.setApi, (state, { payload: { api } }) => ({
-    ...state,
-    api,
-  }))
-  .handleAction(optionsActions.setFavorites, (state, { payload: { favorites } }) => ({
-    ...state,
-    favorites,
-  }))
-  .handleAction(optionsActions.setNaming, (state, { payload: { naming } }) => ({
-    ...state,
-    naming,
-  }))
-  .handleAction(optionsActions.setLatestCurrency, (state, { payload: { latestCurrency } }) => ({
-    ...state,
-    latestCurrency,
-  }));
+export const optionsReducer = createReducer(defaultState, (builder) =>
+  builder
+    .addCase(
+      optionsActions.setOptions,
+      (state, { payload: { isPageTooltip, api, favorites, naming, latestCurrency } }) => {
+        return {
+          ...state,
+          ...(typeof isPageTooltip === 'boolean' && { isPageTooltip }),
+          ...(api && { api }),
+          ...(favorites && { favorites }),
+          ...(naming && { naming }),
+          ...(latestCurrency && { latestCurrency }),
+        };
+      },
+    )
+    .addCase(optionsActions.setIsPageTooltip, (state, { payload: { isPageTooltip } }) => ({
+      ...state,
+      isPageTooltip,
+    }))
+    .addCase(optionsActions.setApi, (state, { payload: { api } }) => ({
+      ...state,
+      api,
+    }))
+    .addCase(optionsActions.setFavorites, (state, { payload: { favorites } }) => ({
+      ...state,
+      favorites,
+    }))
+    .addCase(optionsActions.setNaming, (state, { payload: { naming } }) => ({
+      ...state,
+      naming,
+    }))
+    .addCase(optionsActions.setLatestCurrency, (state, { payload: { latestCurrency } }) => ({
+      ...state,
+      latestCurrency,
+    })),
+);
