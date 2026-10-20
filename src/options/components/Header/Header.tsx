@@ -9,7 +9,7 @@ import Tabs from '@mui/material/Tabs';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 
-import { IS_PAGE_TOOLTIP, API, FAVORITE, NAMING } from 'consts';
+import { IS_PAGE_TOOLTIP, API, FAVORITE, NAMING, IS_HONEST_PRICE, SALARY } from 'consts';
 import { setCacheToStorage, setOptionsToStorage } from 'storage';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'optionsCore';
@@ -22,6 +22,9 @@ export const Header = () => {
   const api = useSelector(optionsSelectors.getApi);
   const favorites = useSelector(optionsSelectors.getFavorites);
   const naming = useSelector(optionsSelectors.getNaming);
+  const isHonestPrice = useSelector(optionsSelectors.getIsHonestPrice);
+  const salary = useSelector(optionsSelectors.getSalary);
+  const salaryCurrency = useSelector(optionsSelectors.getSalaryCurrency);
 
   const [saveStatus, setSaveStatus] = useState(false);
 
@@ -35,12 +38,15 @@ export const Header = () => {
     dispatch(optionsActions.setFavorites({ favorites: FAVORITE }));
     dispatch(optionsActions.setNaming({ naming: NAMING }));
     dispatch(optionsActions.setIsPageTooltip({ isPageTooltip: IS_PAGE_TOOLTIP }));
+    dispatch(optionsActions.setIsHonestPrice({ isHonestPrice: IS_HONEST_PRICE }));
+    dispatch(optionsActions.setSalary({ salary: SALARY }));
+    dispatch(optionsActions.setSalaryCurrency({ salaryCurrency: null }));
 
     setCacheToStorage({ currencys: null, loadApi: null, loadDate: null });
   };
 
   const saveOptions = () => {
-    setOptionsToStorage({ api, favorites, naming, isPageTooltip }, () => {
+    setOptionsToStorage({ api, favorites, naming, isPageTooltip, isHonestPrice, salary, salaryCurrency }, () => {
       setSaveStatus(true);
       const id = setTimeout(() => {
         setSaveStatus(false);

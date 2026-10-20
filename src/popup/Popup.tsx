@@ -12,9 +12,9 @@ import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 
 import { CurrencyName, CurrencyRow, CurrencyValue, OptionsButton } from 'atoms';
-import { ChooseCurrencySelection, DatePicker } from 'molecules';
+import { ChooseCurrencySelection, DatePicker, HonestPrice } from 'molecules';
 import { IExchangeRate } from 'types';
-import { getOptionsFromStorage, setOptionsToStorage, StorageOptionsChanges } from 'storage';
+import { getOptionsFromStorage, setOptionsToStorage, getOptionsFromChanges } from 'storage';
 import { formatMoneySpaces, getCalculatedRates, getSelectedNumber } from 'helpers';
 import { optionsActions, optionsSelectors } from 'commonCore';
 import { appActions, appSelectors } from 'popupCore';
@@ -90,15 +90,7 @@ export const Popup: React.FC = () => {
     chrome.storage.onChanged.addListener(storageChangeListener);
 
     function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
-      const options = changes as StorageOptionsChanges;
-      dispatch(
-        optionsActions.setOptions({
-          isPageTooltip: options.isPageTooltip?.newValue,
-          api: options.api?.newValue,
-          favorites: options.favorites?.newValue,
-          naming: options.naming?.newValue,
-        }),
-      );
+      dispatch(optionsActions.setOptions(getOptionsFromChanges(changes)));
     }
 
     return () => {
@@ -163,6 +155,7 @@ export const Popup: React.FC = () => {
               <CurrencyValue currency={item} number={number} />
             </CurrencyRow>
           ))}
+          <HonestPrice api={api} currency={currency || api} exchangeRates={exchangeRates} number={number} />
           {loading && (
             <Box sx={loaderSx}>
               <CircularProgress />

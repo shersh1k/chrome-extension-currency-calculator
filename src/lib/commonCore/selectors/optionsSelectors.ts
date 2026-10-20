@@ -13,3 +13,6 @@ export const getNaming = ({ options: { naming } }: { options: IOptionsState }) =
 export type NamingType = ReturnType<typeof getNaming>;
 export const getLatestCurrency = ({ options: { latestCurrency } }: { options: IOptionsState }) => latestCurrency;
 export type LatestCurrencyType = ReturnType<typeof getLatestCurrency>;
+export const getIsHonestPrice = ({ options: { isHonestPrice } }: { options: IOptionsState }) => isHonestPrice;
+export const getSalary = ({ options: { salary } }: { options: IOptionsState }) => salary;
+export const getSalaryCurrency = ({ options: { salaryCurrency } }: { options: IOptionsState }) => salaryCurrency;

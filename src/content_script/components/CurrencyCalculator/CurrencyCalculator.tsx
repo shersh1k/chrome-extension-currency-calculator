@@ -9,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import { CurrencyName, CurrencyRow, CurrencyValue } from 'atoms';
-import { ChooseCurrencySelection, DatePicker } from 'molecules';
+import { ChooseCurrencySelection, DatePicker, HonestPrice } from 'molecules';
 import { IExchangeRate } from 'types';
 import { setOptionsToStorage } from 'storage';
 import { getCalculatedRates } from 'helpers';
@@ -93,6 +93,7 @@ export const CurrencyCalculator: React.FC = () => {
             <CurrencyValue currency={item} number={number} />
           </CurrencyRow>
         ))}
+        <HonestPrice disablePortal api={api} currency={currency} exchangeRates={exchangeRates} number={number} />
       </Box>
       {loading && (
         <Box sx={{ minHeight: 90, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

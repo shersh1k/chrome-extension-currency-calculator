@@ -6,6 +6,9 @@ export interface IStorageOptions {
   favorites: string[] | null;
   naming: NamingTypes | null;
   latestCurrency: string | null;
+  isHonestPrice: boolean | null;
+  salary: number | null;
+  salaryCurrency: string | null;
 }
 
 export interface IStorageCache {

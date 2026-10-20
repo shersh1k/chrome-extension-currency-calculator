@@ -1,4 +1,4 @@
-import { getOptionsFromStorage, StorageOptionsChanges } from 'storage';
+import { getOptionsFromStorage, getOptionsFromChanges } from 'storage';
 import { getSelectedNumber } from 'helpers';
 import { optionsActions } from 'commonCore';
 import { store, appActions } from 'contentScriptCore';
@@ -39,14 +39,5 @@ function storeListener() {
 }
 
 function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
-  const options = changes as StorageOptionsChanges;
-  store.dispatch(
-    optionsActions.setOptions({
-      isPageTooltip: options.isPageTooltip?.newValue,
-      api: options.api?.newValue,
-      favorites: options.favorites?.newValue,
-      naming: options.naming?.newValue,
-      latestCurrency: options.latestCurrency?.newValue,
-    }),
-  );
+  store.dispatch(optionsActions.setOptions(getOptionsFromChanges(changes)));
 }

@@ -1,10 +1,26 @@
 import { IStorageCache, IStorageOptions } from 'types';
-import { API, FAVORITE, IS_PAGE_TOOLTIP, NAMING } from 'consts';
+import { API, FAVORITE, IS_HONEST_PRICE, IS_PAGE_TOOLTIP, NAMING, SALARY } from 'consts';
 
 // chrome.storage.onChanged payload for options stored in sync area
 export type StorageOptionsChanges = {
   [K in keyof IStorageOptions]?: { newValue?: IStorageOptions[K]; oldValue?: IStorageOptions[K] };
 };
+
+// picks new values of changed options, unchanged ones stay undefined
+export function getOptionsFromChanges(changes: { [key: string]: chrome.storage.StorageChange }) {
+  const options = changes as StorageOptionsChanges;
+
+  return {
+    isPageTooltip: options.isPageTooltip?.newValue,
+    api: options.api?.newValue,
+    favorites: options.favorites?.newValue,
+    naming: options.naming?.newValue,
+    latestCurrency: options.latestCurrency?.newValue,
+    isHonestPrice: options.isHonestPrice?.newValue,
+    salary: options.salary?.newValue,
+    salaryCurrency: options.salaryCurrency?.newValue,
+  };
+}
 
 export function getOptionsFromStorage(callback: (options: IStorageOptions) => void): void {
   chrome.storage.sync
@@ -14,6 +30,9 @@ export function getOptionsFromStorage(callback: (options: IStorageOptions) => vo
       favorites: FAVORITE,
       naming: NAMING,
       latestCurrency: API,
+      isHonestPrice: IS_HONEST_PRICE,
+      salary: SALARY,
+      salaryCurrency: null,
     })
     .then(callback);
 }

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import Box from '@mui/material/Box';
 
-import { getOptionsFromStorage, StorageOptionsChanges } from 'storage';
+import { getOptionsFromStorage, getOptionsFromChanges } from 'storage';
 import { optionsActions } from 'commonCore';
 
 import { Header, MainTab, CommonTab, ApiTab, AboutTab } from './components';
@@ -19,15 +19,7 @@ export const Options = () => {
     chrome.storage.onChanged.addListener(storageChangeListener);
 
     function storageChangeListener(changes: { [key: string]: chrome.storage.StorageChange }) {
-      const options = changes as StorageOptionsChanges;
-      dispatch(
-        optionsActions.setOptions({
-          isPageTooltip: options.isPageTooltip?.newValue,
-          api: options.api?.newValue,
-          favorites: options.favorites?.newValue,
-          naming: options.naming?.newValue,
-        }),
-      );
+      dispatch(optionsActions.setOptions(getOptionsFromChanges(changes)));
     }
 
     return () => {
